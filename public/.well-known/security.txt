@@ -1,0 +1,6 @@
+Contact: https://github.com/gaelopr/scibased/security/advisories/new
+Contact: https://github.com/gaelopr/scibased/issues
+Expires: 2027-10-21T00:00:00.000Z
+Preferred-Languages: en, es
+Canonical: https://gaelopr.github.io/scibased/.well-known/security.txt
+Policy: https://github.com/gaelopr/scibased/blob/main/SECURITY.md

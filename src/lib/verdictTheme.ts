@@ -1,0 +1,77 @@
+import type { Verdict } from "../types";
+
+/**
+ * Complete, static Tailwind class strings for each verdict state.
+ * Keeping these whole (rather than assembling class names dynamically) means
+ * Tailwind can see every class at build time.
+ */
+export const verdictTheme = {
+  verified: {
+    label: "Verified",
+    shortLabel: "Verified",
+    card: "bg-gradient-to-br from-[#34D399] via-[#10B981] to-[#0BA875] text-[#080E18]",
+    glow: "shadow-[0_28px_80px_-28px_rgba(16,185,129,0.55)]",
+    overlayBadge: "bg-[#080E18]/10 text-[#080E18] ring-1 ring-[#080E18]/15",
+    softBadge: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/70",
+    dot: "bg-[#10B981]",
+    accentText: "text-emerald-700",
+    mutedText: "text-[#07261E]",
+    divider: "border-[#080E18]/15",
+    softDivider: "border-emerald-100",
+    iconTile: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100",
+    numberBadge: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/70",
+    connector: "bg-emerald-100",
+    tint: "bg-emerald-50/60",
+    hoverBorder: "hover:border-emerald-300",
+    hoverText: "group-hover:text-emerald-700",
+    scoreTrack: "stroke-[#080E18]/15",
+    scoreFill: "stroke-[#080E18]",
+    focus: "focus-visible:ring-emerald-500",
+  },
+  context: {
+    label: "Needs context",
+    shortLabel: "Context",
+    card: "bg-gradient-to-br from-[#FCD34D] via-[#F59E0B] to-[#E8890A] text-[#201503]",
+    glow: "shadow-[0_28px_80px_-28px_rgba(245,158,11,0.55)]",
+    overlayBadge: "bg-[#201503]/10 text-[#201503] ring-1 ring-[#201503]/20",
+    softBadge: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/80",
+    dot: "bg-[#F59E0B]",
+    accentText: "text-amber-700",
+    mutedText: "text-[#3B2604]",
+    divider: "border-[#201503]/15",
+    softDivider: "border-amber-100",
+    iconTile: "bg-amber-50 text-amber-700 ring-1 ring-amber-100",
+    numberBadge: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/80",
+    connector: "bg-amber-100",
+    tint: "bg-amber-50/60",
+    hoverBorder: "hover:border-amber-300",
+    hoverText: "group-hover:text-amber-700",
+    scoreTrack: "stroke-[#201503]/15",
+    scoreFill: "stroke-[#201503]",
+    focus: "focus-visible:ring-amber-500",
+  },
+  debunked: {
+    label: "Debunked",
+    shortLabel: "Debunked",
+    card: "bg-gradient-to-br from-[#F87171] via-[#EF4444] to-[#EF4444] text-[#080E18]",
+    glow: "shadow-[0_28px_80px_-28px_rgba(239,68,68,0.55)]",
+    overlayBadge: "bg-[#080E18]/10 text-[#080E18] ring-1 ring-[#080E18]/15",
+    softBadge: "bg-red-50 text-red-700 ring-1 ring-red-200/70",
+    dot: "bg-[#EF4444]",
+    accentText: "text-red-700",
+    mutedText: "text-[#290A0A]",
+    divider: "border-[#080E18]/15",
+    softDivider: "border-red-100",
+    iconTile: "bg-red-50 text-red-600 ring-1 ring-red-100",
+    numberBadge: "bg-red-50 text-red-700 ring-1 ring-red-200/70",
+    connector: "bg-red-100",
+    tint: "bg-red-50/60",
+    hoverBorder: "hover:border-red-300",
+    hoverText: "group-hover:text-red-700",
+    scoreTrack: "stroke-[#080E18]/15",
+    scoreFill: "stroke-[#080E18]",
+    focus: "focus-visible:ring-red-500",
+  },
+} satisfies Record<Verdict, Record<string, string>>;
+
+export const verdictOrder: Verdict[] = ["verified", "context", "debunked"];
