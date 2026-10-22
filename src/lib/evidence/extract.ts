@@ -352,7 +352,7 @@ export function classifyDirection(
       /\b(?:increased|greater|higher)\b[^.]{0,80}\b(?:active recovery|act|control|passive recovery)\b[^.]{0,80}\b(?:than|versus|vs\.?)\b[^.]{0,50}\b(?:cwi|cold water immersion|cold plunge|ice bath)\b/i.test(
         normalized,
       ) ||
-      /\b(?:cwi|cold water immersion|cold plunge|ice bath)\b[^.]{0,100}\b(?:attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit|lower|smaller|less)\w*\b/i.test(
+      /\b(?:cwi|cold water immersion|cold plunge|ice bath)\b[^.]{0,100}\b(?:attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit|lowered|smaller|less)\w*\b/i.test(
         normalized,
       ) ||
       /\b(?:attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit)\w*\b[^.]{0,100}\b(?:hypertroph|muscle (?:growth|mass|size)|strength gain|anabolic|adaptation)\b/i.test(
@@ -947,7 +947,6 @@ function contradictPatterns(claimType: ClaimType): RegExp[] {
         /\b(did not|does not|failed to)\b[^.]{0,60}\b(improve|reduce|increase|decrease|affect|change|lower)\b/i,
         /\bnot (?:significantly )?(?:effective|associated|different|superior)\b/i,
         /\b(no evidence (?:of|that)|little evidence|insufficient evidence)\b/i,
-        /\b(attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit)\w*\b[^.]{0,80}\b(hypertroph|muscle (?:growth|mass|size)|strength gain|adaptation|anabolic)\b/i,
       ];
     case "causation":
       return [
