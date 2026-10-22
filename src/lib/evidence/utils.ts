@@ -66,14 +66,98 @@ export async function fetchWithRetry(
   throw lastError instanceof Error ? lastError : new Error("Request failed");
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  ndash: "–",
+  mdash: "—",
+  hellip: "…",
+  lsquo: "‘",
+  rsquo: "’",
+  ldquo: "“",
+  rdquo: "”",
+  laquo: "«",
+  raquo: "»",
+  copy: "©",
+  reg: "®",
+  trade: "™",
+  plusmn: "±",
+  times: "×",
+  divide: "÷",
+  micro: "µ",
+  deg: "°",
+  sup1: "¹",
+  sup2: "²",
+  sup3: "³",
+  frac12: "½",
+  frac14: "¼",
+  frac34: "¾",
+  ge: "≥",
+  le: "≤",
+  ne: "≠",
+  asymp: "≈",
+  infin: "∞",
+  middot: "·",
+  bull: "•",
+  dagger: "†",
+  Dagger: "‡",
+  permil: "‰",
+  prime: "′",
+  Prime: "″",
+  alpha: "α",
+  beta: "β",
+  gamma: "γ",
+  delta: "δ",
+  epsilon: "ε",
+  theta: "θ",
+  lambda: "λ",
+  mu: "μ",
+  pi: "π",
+  sigma: "σ",
+  omega: "ω",
+  aacute: "á",
+  eacute: "é",
+  iacute: "í",
+  oacute: "ó",
+  uacute: "ú",
+  ntilde: "ñ",
+  uuml: "ü",
+  Aacute: "Á",
+  Eacute: "É",
+  Iacute: "Í",
+  Oacute: "Ó",
+  Uacute: "Ú",
+  Ntilde: "Ñ",
+  Uuml: "Ü",
+  iexcl: "¡",
+  iquest: "¿",
+};
+
 export function decodeHtmlEntities(text: string): string {
-  // Parse in an inert document: this decodes entities without inserting a
-  // string into the live DOM. No scripts or event handlers can execute.
-  const doc = new DOMParser().parseFromString(
-    `<!doctype html><body>${text}</body>`,
-    "text/html",
-  );
-  return doc.body.textContent ?? "";
+  // Decode only known entities and numeric references. Building an HTML
+  // document from untrusted API text is unnecessary and turns a text decoder
+  // into an HTML injection sink; this keeps the operation inert.
+  return text.replace(/&(#x[0-9a-f]+|#[0-9]+|[a-z][a-z0-9]+);/gi, (match, entity: string) => {
+    if (entity[0] === "#") {
+      const isHex = entity[1]?.toLowerCase() === "x";
+      const codePoint = Number.parseInt(entity.slice(isHex ? 2 : 1), isHex ? 16 : 10);
+      if (
+        Number.isFinite(codePoint) &&
+        codePoint > 0 &&
+        codePoint <= 0x10ffff &&
+        !(codePoint >= 0xd800 && codePoint <= 0xdfff)
+      ) {
+        return String.fromCodePoint(codePoint);
+      }
+      return match;
+    }
+
+    return NAMED_ENTITIES[entity] ?? match;
+  });
 }
 
 /**
