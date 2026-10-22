@@ -85,6 +85,8 @@ export interface SearchCoverage {
   openAccessAvailable: number;
   dateRange: string;
   limitations: string[];
+  /** Set when a non-English claim was locally translated for the search. */
+  translatedFrom?: "Spanish";
 }
 
 export type AnalysisStep =

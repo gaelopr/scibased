@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import type { ChangeEvent, ClipboardEvent, DragEvent } from "react";
+import { useLanguage } from "../i18n";
 import type { MockKey } from "../types";
 import DemoSwitcher from "./DemoSwitcher";
 
@@ -37,6 +38,7 @@ export default function ClaimInput({
   onDemo,
   analysisError,
 }: ClaimInputProps) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
   const textareaId = useId();
@@ -71,12 +73,12 @@ export default function ClaimInput({
 
   function validateAndSetFile(file: File) {
     if (!ACCEPTED_TYPES.includes(file.type)) {
-      setFileError("That file type isn't supported. Please use a PNG, JPG, or WebP image.");
+      setFileError(t("claim.fileTypeError"));
       return;
     }
 
     if (file.size > MAX_FILE_BYTES) {
-      setFileError("That screenshot is larger than 10 MB. Try a smaller image.");
+      setFileError(t("claim.fileSizeError"));
       return;
     }
 
@@ -154,14 +156,14 @@ export default function ClaimInput({
             <ScanSearch className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
           </span>
           <div>
-            <h2 className="text-[14.5px] font-semibold tracking-[-0.015em]">Drop the claim</h2>
+            <h2 className="text-[14.5px] font-semibold tracking-[-0.015em]">{t("claim.title")}</h2>
             <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
-              Screenshot or text — whatever you've got.
+              {t("claim.subtitle")}
             </p>
           </div>
         </div>
         <span className="hidden rounded-full bg-slate-100 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.13em] text-slate-600 sm:inline">
-          Free
+          {t("claim.free")}
         </span>
       </div>
 
@@ -194,7 +196,7 @@ export default function ClaimInput({
                 {previewUrl ? (
                   <img
                     src={previewUrl}
-                    alt="Preview of the uploaded claim screenshot"
+                    alt={t("claim.previewAlt")}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -210,14 +212,14 @@ export default function ClaimInput({
                   {imageFile.name}
                 </p>
                 <p className="mt-0.5 text-[10.5px] text-slate-500">
-                  Screenshot ready · {formatBytes(imageFile.size)}
+                  {t("claim.ready")} · {formatBytes(imageFile.size)}
                 </p>
                 <button
                   type="button"
                   onClick={openFilePicker}
                   className="mt-1.5 text-[10.5px] font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-2 transition hover:text-emerald-800"
                 >
-                  Replace image
+                  {t("claim.replace")}
                 </button>
               </div>
 
@@ -227,7 +229,7 @@ export default function ClaimInput({
                   onImageChange(null);
                   setFileError(null);
                 }}
-                aria-label="Remove uploaded screenshot"
+                aria-label={t("claim.remove")}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
               >
                 <X className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
@@ -255,16 +257,16 @@ export default function ClaimInput({
               <ImageUp className="h-[22px] w-[22px]" strokeWidth={1.9} aria-hidden="true" />
             </span>
             <span className="mt-3.5 text-[14px] font-semibold tracking-[-0.01em] text-ink-950">
-              {isDragging ? "Drop your screenshot" : "Drop a screenshot here"}
+              {isDragging ? t("claim.dragActive") : t("claim.drop")}
             </span>
             <span className="mt-1 text-[11.5px] leading-5 text-slate-500">
-              or{" "}
+              {t("claim.or")}{" "}
               <span className="font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-2">
-                browse your files
+                {t("claim.browse")}
               </span>
             </span>
             <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/80 px-2.5 py-1 text-[9.5px] font-medium uppercase tracking-[0.07em] text-slate-600">
-              PNG · JPG · WebP · 10 MB
+              {t("claim.formats")}
             </span>
           </button>
         )}
@@ -272,14 +274,14 @@ export default function ClaimInput({
         <div className="my-4 flex items-center gap-3" aria-hidden="true">
           <span className="h-px flex-1 bg-slate-100" />
           <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-600">
-            or paste the claim
+            {t("claim.orPaste")}
           </span>
           <span className="h-px flex-1 bg-slate-100" />
         </div>
 
         <div className="relative">
           <label htmlFor={textareaId} className="sr-only">
-            Paste or type the scientific claim
+            {t("claim.textareaLabel")}
           </label>
           <textarea
             id={textareaId}
@@ -288,7 +290,7 @@ export default function ClaimInput({
             onChange={(event) => onClaimChange(event.target.value.slice(0, MAX_CLAIM_LENGTH))}
             maxLength={MAX_CLAIM_LENGTH}
             rows={4}
-            placeholder="Or paste the claim here..."
+            placeholder={t("claim.placeholder")}
             onKeyDown={(event) => {
               if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && canAnalyze) {
                 event.preventDefault();
@@ -317,7 +319,7 @@ export default function ClaimInput({
             strokeWidth={2.1}
             aria-hidden="true"
           />
-          Check the science
+          {t("claim.cta")}
           <ArrowRight
             className={`h-4 w-4 transition-transform duration-300 ${
               canAnalyze ? "group-hover:translate-x-1" : ""
@@ -330,13 +332,17 @@ export default function ClaimInput({
         <div className="mt-3 flex items-center justify-between gap-3 px-0.5 text-[9.5px] text-slate-500">
           <span className="inline-flex items-center gap-1.5">
             <Link2 className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
-            Receipts included — papers, quotes, caveats
+            {t("claim.receipts")}
           </span>
           <span className="hidden items-center gap-1.5 sm:inline-flex">
             <Timer className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
-            Usually 10–30 seconds
+            {t("claim.time")}
           </span>
         </div>
+
+        <p className="mb-4 mt-2 text-[9.5px] leading-4 text-slate-500">
+          {t("claim.searchNote")}
+        </p>
       </div>
 
       <div className="mt-5">

@@ -15,23 +15,36 @@ import { searchOpenAlex } from "./openalex";
 import { fetchPubMedArticles, searchPubMed } from "./pubmed";
 import type { RawArticle } from "./pubmed";
 import { parseClaim, buildPubMedQuery, type ParsedClaim } from "./query";
+import { translateClaimForSearch } from "./translate";
 import { normalizeTitle, pct } from "./utils";
 
 export type { AnalysisProgress };
 
 interface ScanOptions {
   onProgress?: (progress: AnalysisProgress) => void;
+  language?: "en" | "es";
 }
 
 export async function runEvidenceScan(
   claimText: string,
-  { onProgress }: ScanOptions = {},
+  { onProgress, language = "en" }: ScanOptions = {},
 ): Promise<VerdictResult> {
-  const claim = parseClaim(claimText);
+  const copy = (en: string, es: string) => (language === "es" ? es : en);
+  const searchTranslation = translateClaimForSearch(claimText);
+  const parsedClaim = parseClaim(searchTranslation.text);
+  const claim: ParsedClaim = {
+    ...parsedClaim,
+    // Keep the user's wording for display, while the English search concepts
+    // above drive the literature query and the evidence extraction.
+    original: claimText.trim(),
+  };
 
   report(onProgress, {
     step: "query",
-    message: "Turning the claim into a focused literature query",
+    message: copy(
+      "Turning the claim into a focused literature query",
+      "Convirtiendo la afirmación en una búsqueda enfocada en la literatura",
+    ),
     percent: 5,
   });
 
@@ -52,13 +65,21 @@ export async function runEvidenceScan(
 
   if (pubmed.articles.length === 0 && openAlex.articles.length === 0) {
     if (pubmedResult.status === "rejected" && openAlexResult.status === "rejected") {
-      throw new Error("The literature databases could not be reached.");
+      throw new Error(
+        copy(
+          "The literature databases could not be reached.",
+          "No se pudo conectar con las bases de datos de literatura.",
+        ),
+      );
     }
   }
 
   report(onProgress, {
     step: "search",
-    message: `Found ${pubmed.count.toLocaleString()} PubMed records and ${openAlex.count.toLocaleString()} OpenAlex records`,
+    message: copy(
+      `Found ${pubmed.count.toLocaleString()} PubMed records and ${openAlex.count.toLocaleString()} OpenAlex records`,
+      `Encontramos ${pubmed.count.toLocaleString()} registros en PubMed y ${openAlex.count.toLocaleString()} en OpenAlex`,
+    ),
     percent: 20,
   });
 
@@ -67,7 +88,10 @@ export async function runEvidenceScan(
 
   report(onProgress, {
     step: "screen",
-    message: `Screening ${merged.length} abstracts for relevance and study quality`,
+    message: copy(
+      `Screening ${merged.length} abstracts for relevance and study quality`,
+      `Revisando ${merged.length} resúmenes por relevancia y calidad del estudio`,
+    ),
     percent: 35,
   });
 
@@ -82,8 +106,14 @@ export async function runEvidenceScan(
     report(onProgress, {
       step: "fulltext",
       message: canReadFullText
-        ? `Reading open-access full text ${index + 1} of ${screened.length}`
-        : `Reading abstract ${index + 1} of ${screened.length}`,
+        ? copy(
+            `Reading open-access full text ${index + 1} of ${screened.length}`,
+            `Leyendo el texto completo de acceso abierto ${index + 1} de ${screened.length}`,
+          )
+        : copy(
+            `Reading abstract ${index + 1} of ${screened.length}`,
+            `Leyendo el resumen ${index + 1} de ${screened.length}`,
+          ),
       percent: pct(40 + (index / Math.max(1, screened.length)) * 45),
       current: index + 1,
       total: screened.length,
@@ -104,7 +134,10 @@ export async function runEvidenceScan(
 
   report(onProgress, {
     step: "synthesize",
-    message: "Weighing study design, sample size, directness, and consistency",
+    message: copy(
+      "Weighing study design, sample size, directness, and consistency",
+      "Sopesando el diseño del estudio, el tamaño de la muestra, la directitud y la consistencia",
+    ),
     percent: 90,
   });
 
@@ -117,13 +150,14 @@ export async function runEvidenceScan(
     fullTextsRead,
     pubmedResult.status === "fulfilled",
     openAlexResult.status === "fulfilled",
+    searchTranslation.translated ? "Spanish" : undefined,
   );
 
   const result = synthesizeResult(studies, claim, coverage);
 
   report(onProgress, {
     step: "done",
-    message: "Evidence scan complete",
+    message: copy("Evidence scan complete", "Escaneo de evidencia completado"),
     percent: 100,
   });
 
@@ -318,6 +352,7 @@ function buildCoverage(
   fullTextsRead: number,
   pubmedWorked: boolean,
   openAlexWorked: boolean,
+  translatedFrom?: "Spanish",
 ): SearchCoverage {
   const years = studies
     .map((study) => study.year)
@@ -359,6 +394,7 @@ function buildCoverage(
     dateRange:
       years.length > 0 ? `${years[0]}–${years[years.length - 1]}` : "No dated studies",
     limitations,
+    translatedFrom,
   };
 }
 

@@ -27,16 +27,24 @@ import { runEvidenceScan } from "./evidence/scan";
  */
 export async function fetchScientificData(
   claimText: string,
-  options: { onProgress?: (progress: AnalysisProgress) => void } = {},
+  options: {
+    onProgress?: (progress: AnalysisProgress) => void;
+    language?: "en" | "es";
+  } = {},
 ): Promise<VerdictResult> {
   const normalized = claimText.trim().replace(/\s+/g, " ");
 
   if (normalized.length < 8) {
-    throw new Error("Please enter a more specific claim.");
+    throw new Error(
+      options.language === "es"
+        ? "Escribe una afirmación más concreta."
+        : "Please enter a more specific claim.",
+    );
   }
 
   const result = await runEvidenceScan(normalized, {
     onProgress: options.onProgress,
+    language: options.language,
   });
 
   return {

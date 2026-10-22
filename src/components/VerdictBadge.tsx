@@ -1,4 +1,5 @@
 import { ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
+import { useLanguage, verdictLabel } from "../i18n";
 import type { Verdict } from "../types";
 import { verdictTheme } from "../lib/verdictTheme";
 
@@ -21,8 +22,10 @@ export default function VerdictBadge({
   size = "md",
   className = "",
 }: VerdictBadgeProps) {
+  const { t } = useLanguage();
   const theme = verdictTheme[verdict];
   const Icon = icons[verdict];
+  const label = verdictLabel(t, verdict);
 
   const variantClasses =
     variant === "overlay" ? theme.overlayBadge : theme.softBadge;
@@ -34,14 +37,14 @@ export default function VerdictBadge({
   return (
     <span
       className={`inline-flex shrink-0 items-center rounded-full font-semibold uppercase tracking-[0.13em] ${variantClasses} ${sizeClasses} ${className}`}
-      aria-label={`Verdict: ${theme.label}`}
+      aria-label={`${t("verdictCard.verdict")}: ${label}`}
     >
       <Icon
         className={size === "sm" ? "h-3 w-3" : "h-3.5 w-3.5"}
         strokeWidth={2.4}
         aria-hidden="true"
       />
-      {theme.label}
+      {label}
     </span>
   );
 }

@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { certaintyLabel, useLanguage } from "../i18n";
 import type { VerdictResult } from "../types";
 
 interface EvidenceOverviewProps {
@@ -17,6 +18,7 @@ interface EvidenceOverviewProps {
 }
 
 export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
+  const { t, language } = useLanguage();
   if (!result.isLive || !result.coverage) return null;
 
   const studies = result.studies ?? [];
@@ -46,61 +48,76 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
         <div>
           <div className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.17em] text-emerald-300/90">
             <ShieldCheck className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
-            The evidence check
+            {t("evidenceCheck.eyebrow")}
           </div>
           <h2
             id="evidence-overview-heading"
             className="mt-1.5 font-serif text-[24px] font-normal leading-none tracking-[-0.02em] text-white sm:text-[28px]"
           >
-            How we checked it<span className="text-slate-400">.</span>
+            {t("evidenceCheck.title")}<span className="text-slate-400">.</span>
           </h2>
         </div>
         <span className="rounded-full border border-white/[0.09] bg-white/[0.04] px-3 py-1.5 text-[9px] font-medium text-slate-300">
-          {coverage.databases.join(" + ") || "Literature search"}
+          {coverage.databases.join(" + ") || t("evidenceCheck.databasesFallback")}
         </span>
       </div>
 
       <div className="mt-5 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
           icon={Database}
-          label="Papers included"
+          label={t("evidenceCheck.papersIncluded")}
           value={String(studies.length)}
-          detail={`${coverage.recordsScreened} abstracts screened`}
+          detail={t("evidenceCheck.abstractsScreened", {
+            count: coverage.recordsScreened,
+          })}
         />
         <Stat
           icon={FileCheck2}
-          label="Full papers read"
+          label={t("evidenceCheck.fullPapersRead")}
           value={`${coverage.fullTextsRead}`}
-          detail={`${coverage.openAccessAvailable} open-access links available`}
+          detail={t("evidenceCheck.openAccessLinks", {
+            count: coverage.openAccessAvailable,
+          })}
         />
         <Stat
           icon={Scale}
-          label="How sure we are"
-          value={certainty}
-          detail={result.certaintyRationale ?? "Automated GRADE-like assessment"}
+          label={t("evidenceCheck.howSure")}
+          value={certaintyLabel(t, certainty)}
+          detail={
+            result.certaintyRationale ??
+            t("evidenceCheck.automatedAssessment")
+          }
+          detailLang={result.certaintyRationale ? "en" : undefined}
           valueClassName={certaintyTone}
         />
         <Stat
           icon={Sparkles}
-          label="What the papers found"
+          label={t("evidenceCheck.whatFound")}
           value={`${supports} / ${mixed} / ${contradicts}`}
-          detail={`${supports} supporting · ${mixed} mixed · ${contradicts} contradicting`}
+          detail={`${supports} ${t("evidenceCheck.supporting")} · ${mixed} ${t("evidenceCheck.mixed")} · ${contradicts} ${t("evidenceCheck.contradicting")}`}
         />
       </div>
 
       <div className="mt-4 rounded-2xl border border-white/[0.075] bg-ink-950/35 p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-            Which way the evidence points
+            {t("evidenceCheck.whichWay")}
           </p>
           <p className="text-[9px] tabular-nums text-slate-400">
-            {supports + contradicts + mixed + unclear} classified
+            {t("evidenceCheck.classified", {
+              count: supports + contradicts + mixed + unclear,
+            })}
           </p>
         </div>
         <div
           className="mt-2.5 flex h-2 overflow-hidden rounded-full bg-white/[0.06]"
           role="img"
-          aria-label={`${supports} supporting, ${contradicts} contradicting, ${mixed} mixed, ${unclear} unclear`}
+          aria-label={t("evidenceCheck.chartAria", {
+            supports,
+            contradicts,
+            mixed,
+            unclear,
+          })}
         >
           {supports > 0 && (
             <span
@@ -130,19 +147,19 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[9.5px] text-slate-400">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
-            Supports {supports}
+            {t("evidenceCheck.supports", { count: supports })}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true" />
-            Mixed {mixed}
+            {t("evidenceCheck.mixed")} {mixed}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-red-400" aria-hidden="true" />
-            Contradicts {contradicts}
+            {t("evidenceCheck.contradicts", { count: contradicts })}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-slate-500" aria-hidden="true" />
-            Unclear {unclear}
+            {t("evidenceCheck.unclear", { count: unclear })}
           </span>
         </div>
       </div>
@@ -150,10 +167,8 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
       <div className="mt-3 flex items-start gap-2 rounded-xl border border-sky-300/10 bg-sky-300/[0.045] px-3.5 py-3 text-[10.5px] leading-[1.65] text-sky-100/70">
         <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sky-300/80" strokeWidth={2} aria-hidden="true" />
         <p>
-          <span className="font-semibold text-sky-100/90">Scope:</span> this is a structured
-          automated evidence scan, not a registered systematic review. It reads abstracts for every
-          included study and full text only for legally open-access papers. Use the study cards to
-          check the exact quotes and methods before relying on the verdict.
+          <span className="font-semibold text-sky-100/90">{t("evidenceCheck.scopeLabel")}</span>{" "}
+          {t("evidenceCheck.scopeBody")}
         </p>
       </div>
 
@@ -161,7 +176,7 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-[11px] font-semibold text-slate-200 focus-visible:outline-offset-2">
           <span className="inline-flex items-center gap-2">
             <Search className="h-3.5 w-3.5 text-slate-400" strokeWidth={2.1} aria-hidden="true" />
-            Search coverage, methodology &amp; limitations
+            {t("evidenceCheck.details")}
           </span>
           <ChevronDown
             className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180"
@@ -174,34 +189,48 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
           <div className="grid gap-2.5 sm:grid-cols-3">
             <CoverageItem
               icon={CalendarDays}
-              label="Search date"
-              value={new Date(coverage.searchedAt).toLocaleDateString()}
+              label={t("evidenceCheck.searchDate")}
+              value={new Date(coverage.searchedAt).toLocaleDateString(
+                language === "es" ? "es" : "en",
+              )}
             />
             <CoverageItem
               icon={Search}
-              label="Records found"
-              value={coverage.recordsFound.toLocaleString()}
+              label={t("evidenceCheck.recordsFound")}
+              value={coverage.recordsFound.toLocaleString(language === "es" ? "es" : "en")}
             />
             <CoverageItem
               icon={Database}
-              label="Publication years"
-              value={coverage.dateRange}
+              label={t("evidenceCheck.publicationYears")}
+              value={
+                coverage.dateRange === "No dated studies"
+                  ? t("evidenceCheck.noDatedStudies")
+                  : coverage.dateRange
+              }
             />
           </div>
 
           <div>
             <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-              Query sent to PubMed
+              {t("evidenceCheck.querySent")}
             </p>
-            <code className="mt-1.5 block break-words rounded-lg border border-white/[0.06] bg-black/25 px-3 py-2.5 font-mono text-[9.5px] leading-[1.65] text-slate-300">
+            <code
+              lang="en"
+              className="mt-1.5 block break-words rounded-lg border border-white/[0.06] bg-black/25 px-3 py-2.5 font-mono text-[9.5px] leading-[1.65] text-slate-300"
+            >
               {coverage.query}
             </code>
+            {coverage.translatedFrom === "Spanish" && (
+              <p className="mt-1.5 text-[9.5px] leading-4 text-slate-400">
+                {t("evidenceCheck.translatedNote")}
+              </p>
+            )}
           </div>
 
           {result.methodology && result.methodology.length > 0 && (
             <div>
               <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                How the verdict was produced
+                {t("evidenceCheck.methodology")}
               </p>
               <ol className="mt-2 space-y-2">
                 {result.methodology.map((item, index) => (
@@ -209,7 +238,7 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
                     <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-[8px] font-semibold tabular-nums text-slate-300">
                       {index + 1}
                     </span>
-                    <span>{item}</span>
+                    <span lang="en">{item}</span>
                   </li>
                 ))}
               </ol>
@@ -219,9 +248,9 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
           {result.rationale && (
             <div>
               <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                Score calculation
+                {t("evidenceCheck.scoreCalculation")}
               </p>
-              <p className="mt-1.5 text-[10.5px] leading-[1.7] text-slate-400">
+              <p lang="en" className="mt-1.5 text-[10.5px] leading-[1.7] text-slate-400">
                 {result.rationale}
               </p>
             </div>
@@ -230,7 +259,7 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
           {result.limitations && result.limitations.length > 0 && (
             <div>
               <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                What this scan cannot tell you
+                {t("evidenceCheck.limitations")}
               </p>
               <ul className="mt-2 space-y-1.5">
                 {result.limitations.map((item) => (
@@ -239,11 +268,17 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
                     className="flex gap-2 text-[10.5px] leading-[1.65] text-slate-400"
                   >
                     <span className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-slate-500" aria-hidden="true" />
-                    <span>{item}</span>
+                    <span lang="en">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
+          )}
+
+          {language === "es" && (
+            <p className="text-[9.5px] leading-4 text-slate-500">
+              {t("evidenceCheck.englishNote")}
+            </p>
           )}
         </div>
       </details>
@@ -256,12 +291,14 @@ function Stat({
   label,
   value,
   detail,
+  detailLang,
   valueClassName = "text-white",
 }: {
   icon: LucideIcon;
   label: string;
   value: string;
   detail: string;
+  detailLang?: string;
   valueClassName?: string;
 }) {
   return (
@@ -273,7 +310,7 @@ function Stat({
       <p className={`mt-1.5 text-[19px] font-semibold leading-none tracking-[-0.03em] ${valueClassName}`}>
         {value}
       </p>
-      <p className="mt-1.5 text-[9.5px] leading-[1.55] text-slate-400">{detail}</p>
+      <p lang={detailLang} className="mt-1.5 text-[9.5px] leading-[1.55] text-slate-400">{detail}</p>
     </div>
   );
 }

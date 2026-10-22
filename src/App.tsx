@@ -5,6 +5,7 @@ import HomeScreen from "./components/HomeScreen";
 import LoadingState from "./components/LoadingState";
 import ResultsScreen from "./components/ResultsScreen";
 import { MOCK_RESULTS } from "./data/mockResults";
+import { useLanguage, verdictLabel } from "./i18n";
 import { fetchScientificData } from "./lib/fetchScientificData";
 import { recognizeClaimFromImage } from "./lib/ocr";
 import type { AnalysisProgress, MockKey, VerdictResult } from "./types";
@@ -12,6 +13,7 @@ import type { AnalysisProgress, MockKey, VerdictResult } from "./types";
 type View = "home" | "loading" | "results";
 
 export default function App() {
+  const { language, t } = useLanguage();
   const [view, setView] = useState<View>("home");
   const [claimText, setClaimText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -29,15 +31,13 @@ export default function App() {
 
   useEffect(() => {
     if (view === "results" && result) {
-      document.title = `${result.label} · SciBased`;
+      document.title = `${verdictLabel(t, result.verdict)} · SciBased`;
       return;
     }
 
     document.title =
-      view === "loading"
-        ? "Checking the papers · SciBased"
-        : "SciBased — Science-based receipts for your feed";
-  }, [view, result]);
+      view === "loading" ? t("app.loadingTitle") : t("app.homeTitle");
+  }, [view, result, t]);
 
   async function runAnalysis(
     claimOverride?: string,
@@ -52,13 +52,13 @@ export default function App() {
     const readFromScreenshot = Boolean(submittedImage) && submittedClaim.length === 0;
 
     setAnalysisError(null);
-    setPendingClaim(submittedClaim || "Reading the claim from your screenshot…");
+    setPendingClaim(submittedClaim || t("app.readingScreenshot"));
     setPendingFromScreenshot(readFromScreenshot);
     setAnalysisProgress({
       step: readFromScreenshot ? "ocr" : "query",
       message: readFromScreenshot
-        ? "Opening your screenshot on this device"
-        : "Preparing a focused literature search",
+        ? t("app.openingScreenshot")
+        : t("app.preparingSearch"),
       percent: 4,
     });
     setView("loading");
@@ -69,19 +69,19 @@ export default function App() {
       if (!inputClaim && submittedImage) {
         inputClaim = await recognizeClaimFromImage(submittedImage, {
           onProgress: setAnalysisProgress,
+          language,
         });
         setClaimText(inputClaim);
         setPendingClaim(inputClaim);
       }
 
       if (!inputClaim) {
-        throw new Error(
-          "We couldn't read a claim from that input. Paste the claim text and try again.",
-        );
+        throw new Error(t("app.noClaim"));
       }
 
       const data = await fetchScientificData(inputClaim, {
         onProgress: setAnalysisProgress,
+        language,
       });
 
       setClaimText(inputClaim);
@@ -95,9 +95,11 @@ export default function App() {
       console.error("SciBased analysis failed:", error);
       const message =
         error instanceof Error &&
-        /screenshot|image|claim|reach|network|timed out|search/i.test(error.message)
+        /screenshot|image|claim|reach|network|timed out|search|captura|imagen|afirmaci[oó]n|conexi[oó]n|literatura|b[uú]squeda|no pudimos/i.test(
+          error.message,
+        )
           ? error.message
-          : "We couldn't complete that analysis. Please check your connection and try again.";
+          : t("app.genericError");
 
       setAnalysisError(message);
       setView("home");

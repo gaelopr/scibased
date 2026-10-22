@@ -1,4 +1,10 @@
 import { BookOpen, Microscope, Target } from "lucide-react";
+import {
+  categoryLabel,
+  certaintyLabel,
+  useLanguage,
+  verdictLabel,
+} from "../i18n";
 import type { VerdictResult } from "../types";
 import { verdictTheme } from "../lib/verdictTheme";
 import VerdictBadge from "./VerdictBadge";
@@ -8,7 +14,9 @@ interface VerdictCardProps {
 }
 
 export default function VerdictCard({ result }: VerdictCardProps) {
+  const { language, t } = useLanguage();
   const theme = verdictTheme[result.verdict];
+  const label = verdictLabel(t, result.verdict);
   const radius = 46;
   const circumference = 2 * Math.PI * radius;
   const evidenceCount = result.studies?.length ?? result.papers.length;
@@ -29,7 +37,7 @@ export default function VerdictCard({ result }: VerdictCardProps) {
             <span
               className={`rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.13em] ${theme.overlayBadge}`}
             >
-              Demo result
+              {t("verdictCard.demo")}
             </span>
           )}
           {result.isLive && (
@@ -37,7 +45,7 @@ export default function VerdictCard({ result }: VerdictCardProps) {
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.13em] ${theme.overlayBadge}`}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
-              Live scan
+              {t("verdictCard.live")}
             </span>
           )}
         </div>
@@ -46,8 +54,8 @@ export default function VerdictCard({ result }: VerdictCardProps) {
           className="flex shrink-0 flex-col items-center pr-1"
           aria-label={
             hasEvidence
-              ? `Claim support score: ${result.score} out of 100`
-              : "No evidence score available because no studies were included"
+              ? t("verdictCard.scoreAria", { score: result.score })
+              : t("verdictCard.noScoreAria")
           }
         >
           <div className="relative h-[84px] w-[84px] sm:h-[106px] sm:w-[106px]">
@@ -83,7 +91,7 @@ export default function VerdictCard({ result }: VerdictCardProps) {
                   <span
                     className={`mt-1 text-[8px] font-semibold uppercase tracking-[0.08em] ${theme.mutedText} sm:text-[8px]`}
                   >
-                    Claim support
+                    {t("verdictCard.claimSupport")}
                   </span>
                 </>
               ) : (
@@ -92,7 +100,7 @@ export default function VerdictCard({ result }: VerdictCardProps) {
                   <span
                     className={`mt-1 text-[8px] font-semibold uppercase tracking-[0.08em] ${theme.mutedText} sm:text-[8px]`}
                   >
-                    No evidence
+                    {t("verdictCard.noEvidence")}
                   </span>
                 </>
               )}
@@ -105,16 +113,24 @@ export default function VerdictCard({ result }: VerdictCardProps) {
         <p
           className={`text-[9px] font-semibold uppercase tracking-[0.19em] ${theme.mutedText}`}
         >
-          SciBased verdict
+          {t("verdictCard.verdict")}
         </p>
         <h1
           id="verdict-title"
           className="mt-1 font-serif text-[45px] font-normal leading-[0.94] tracking-[-0.035em] sm:text-[58px]"
         >
-          {result.label}
+          {label}
           <span className="opacity-55">.</span>
         </h1>
-        <p className={`mt-3 max-w-[580px] text-[14.5px] leading-[1.7] sm:text-[16px] ${theme.mutedText}`}>
+        {language === "es" && (
+          <p className={`mt-3 text-[9px] font-semibold uppercase tracking-[0.13em] ${theme.mutedText} opacity-70`}>
+            {t("results.evidenceSummary")}
+          </p>
+        )}
+        <p
+          lang="en"
+          className={`${language === "es" ? "mt-1.5" : "mt-3"} max-w-[580px] text-[14.5px] leading-[1.7] sm:text-[16px] ${theme.mutedText}`}
+        >
           {result.conclusion}
         </p>
       </div>
@@ -125,18 +141,20 @@ export default function VerdictCard({ result }: VerdictCardProps) {
         <span className="inline-flex items-center gap-1.5">
           <BookOpen className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
           {result.isLive
-            ? `${evidenceCount} papers included`
-            : `${result.papers.length} peer-reviewed papers`}
+            ? t("verdictCard.papersIncluded", { count: evidenceCount })
+            : t("verdictCard.papers", { count: result.papers.length })}
         </span>
         <span className="hidden h-0.5 w-0.5 rounded-full bg-current opacity-40 sm:inline-block" aria-hidden="true" />
         <span className="inline-flex items-center gap-1.5">
           <Microscope className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
-          {result.evidenceQuality} certainty
+          {t("verdictCard.certainty", {
+            value: certaintyLabel(t, result.evidenceQuality),
+          })}
         </span>
         <span className="hidden h-0.5 w-0.5 rounded-full bg-current opacity-40 sm:inline-block" aria-hidden="true" />
         <span className="inline-flex items-center gap-1.5">
           <Target className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
-          {result.category}
+          {categoryLabel(t, result.category)}
         </span>
       </div>
     </section>

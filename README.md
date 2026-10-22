@@ -17,7 +17,9 @@ The app is mobile-first, runs entirely in the browser, and does not require an a
 - **Real literature search** through PubMed E-utilities and OpenAlex.
 - **Open-access full-text reading** through Europe PMC for papers that legally expose full text. Results, methods, limitations, and quoted evidence are extracted; the app does not rely only on authors' conclusions.
 - **Paywalled papers** are assessed from the abstract and metadata only. **Sci-Hub and other unauthorized full-text sources are not used.**
-- **Local screenshot OCR** with Tesseract.js. The image stays on the device; only the extracted claim text is sent to the literature APIs.
+- **English and Spanish interface:** switch languages from the header. The choice is remembered on the device. Paper titles, abstracts, quotes, methodology, and evidence summaries are always shown in English, as published — the UI language never translates the evidence.
+- **Spanish claims for an English literature search:** a local, privacy-preserving glossary translates common Spanish health-claim vocabulary into English search concepts before the query is sent. The original wording is still displayed. This is a focused glossary, not a general translator; ambiguous claims work better in English.
+- **Local screenshot OCR** with Tesseract.js, using English and Spanish text models. The image stays on the device; only the extracted claim text is sent to the literature APIs.
 - **Deterministic verdict synthesis** based on study design, sample size, directness, consistency, risk of bias, access level, and the direction of the results. No LLM is asked to invent a conclusion.
 - **Transparent coverage:** records found, abstracts screened, studies included, full texts read, open-access links available, search date, exact query, and limitations.
 - **Three verdict states:** Verified (`#10B981`), Needs context (`#F59E0B`), Debunked (`#EF4444`).
@@ -42,6 +44,7 @@ The app is mobile-first, runs entirely in the browser, and does not require an a
 | Icons | Lucide React |
 | Type | Inter (UI) + Newsreader (editorial serif) |
 | OCR | Tesseract.js, running locally in the browser |
+| OCR language data | Tesseract `traineddata` English + Spanish models (Apache-2.0) |
 | Literature | PubMed E-utilities, OpenAlex, Europe PMC REST |
 
 ## Getting started
@@ -83,7 +86,8 @@ The static output is written to `dist/`.
 
 ### Evidence limits
 
-- Search is limited to English-language, PubMed- and OpenAlex-indexed literature with abstracts.
+- Search is limited to English-language, PubMed- and OpenAlex-indexed literature with abstracts. Spanish claims are translated into a focused English query locally before searching; the returned evidence is not machine-translated.
+- The Spanish query helper covers common health and science vocabulary. A very idiomatic or ambiguous Spanish claim may need an English reformulation for a better search.
 - NCBI's unauthenticated E-utilities limit is respected by keeping the scan small.
 - Full text is read only where Europe PMC exposes it legally.
 - The direction label is an automated screening aid. The study card shows the sentence it relied on.
@@ -94,7 +98,7 @@ The static output is written to `dist/`.
 ```
 scibased/
 ├─ .github/workflows/deploy.yml   # build + GitHub Pages deployment
-├─ public/ocr/                    # local Tesseract worker, WASM core, English model
+├─ public/ocr/                    # local Tesseract worker, WASM core, English + Spanish models
 ├─ public/.well-known/security.txt
 ├─ src/
 │  ├─ App.tsx                     # home | loading | results; live vs sample flow
@@ -121,7 +125,9 @@ scibased/
 │  │     ├─ extract.ts            # designs, direction, samples, quotes
 │  │     ├─ grade.ts              # certainty, weighting, verdict
 │  │     ├─ query.ts              # claim parsing and query construction
+│  │     ├─ translate.ts          # local Spanish → English search concepts
 │  │     └─ config.ts             # design weights, synonyms, limits
+│  ├─ i18n.tsx                    # English / Spanish UI dictionaries and language state
 │  ├─ index.css                   # theme, atmosphere, skeletons, motion
 │  └─ types.ts                    # shared contracts
 ├─ index.html
@@ -145,7 +151,8 @@ All sample citations are real and link to PubMed records.
 
 ## Screenshot OCR and privacy
 
-- Tesseract.js, its WASM core, and the English language model are served from this origin under `public/ocr/` — no runtime CDN request.
+- Tesseract.js, its WASM core, and the English + Spanish language models are served from this origin under `public/ocr/` — no runtime CDN request.
+- The language selector changes the interface. OCR uses both models so it can read English or Spanish screenshots; extracted evidence remains in English.
 - The image is processed locally in the browser and is not uploaded to SciBased or to a literature API.
 - Screenshots are capped at 10 MB and 40 megapixels.
 - Only the extracted claim text is sent to PubMed, OpenAlex, and Europe PMC.

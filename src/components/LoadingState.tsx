@@ -9,6 +9,7 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { AnalysisProgress, AnalysisStep } from "../types";
 
 interface LoadingStateProps {
@@ -22,25 +23,26 @@ export default function LoadingState({
   fromScreenshot,
   progress,
 }: LoadingStateProps) {
+  const { t } = useLanguage();
   const percent = progress?.percent ?? 0;
   const steps = [
     {
-      label: fromScreenshot ? "Reading your screenshot" : "Parsing the claim",
+      label: fromScreenshot ? t("loading.stepScreenshot") : t("loading.stepParse"),
       icon: ScanLine,
       matches: ["ocr", "query"] as AnalysisStep[],
     },
     {
-      label: "Searching PubMed + OpenAlex",
+      label: t("loading.stepSearch"),
       icon: Search,
       matches: ["search"] as AnalysisStep[],
     },
     {
-      label: "Reading the papers",
+      label: t("loading.stepRead"),
       icon: Database,
       matches: ["abstracts", "screen", "fulltext"] as AnalysisStep[],
     },
     {
-      label: "Weighing the evidence",
+      label: t("loading.stepWeigh"),
       icon: Sparkles,
       matches: ["synthesize", "done"] as AnalysisStep[],
     },
@@ -51,9 +53,7 @@ export default function LoadingState({
     step.matches.includes(currentStep),
   );
   const done = currentStep === "done";
-  const message =
-    progress?.message ??
-    "Preparing the search and checking which full texts are legally open access.";
+  const message = progress?.message ?? t("loading.defaultMessage");
 
   return (
     <main className="relative z-10 mx-auto w-full max-w-4xl px-4 pb-4 pt-7 sm:px-6 sm:pt-10">
@@ -63,7 +63,7 @@ export default function LoadingState({
         </span>
         <div className="min-w-0">
           <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-            Claim under review
+            {t("loading.claimUnder")}
           </p>
           <p className="mt-1 line-clamp-2 font-serif text-[16px] leading-6 text-slate-300 sm:text-[17px]">
             “{claimText}”
@@ -81,7 +81,7 @@ export default function LoadingState({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <h1 className="font-serif text-[28px] font-normal leading-none tracking-[-0.02em] text-white sm:text-[32px]">
-                  Reading the evidence<span className="text-emerald-300">.</span>
+                  {t("loading.heading")}<span className="text-emerald-300">.</span>
                 </h1>
                 <span className="rounded-full border border-white/[0.08] bg-white/[0.04] px-2.5 py-1 text-[9.5px] font-medium tabular-nums text-slate-400">
                   {percent}%
@@ -102,7 +102,7 @@ export default function LoadingState({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={percent}
-            aria-label="Evidence analysis progress"
+            aria-label={t("loading.progressAria")}
           >
             <div
               className="h-full rounded-full bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-300 shadow-[0_0_14px_rgba(52,211,153,0.5)] transition-[width] duration-300 ease-out"
@@ -199,7 +199,7 @@ export default function LoadingState({
       </div>
 
       <p className="mt-5 text-center text-[10px] text-slate-400">
-        Checking the papers, not just the headline. This can take 10–30 seconds.
+        {t("loading.note")}
       </p>
     </main>
   );

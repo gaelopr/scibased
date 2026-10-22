@@ -21,8 +21,8 @@ browser-side:
   network requests to the three literature APIs. `frame-ancestors` and
   `X-Frame-Options` are sent as real headers where the host supports them;
   browsers ignore those directives in a meta tag.
-- **Local OCR assets:** Tesseract.js, its WASM core, and the English language
-  model are served from this origin rather than a third-party CDN.
+- **Local OCR assets:** Tesseract.js, its WASM core, and the English and Spanish
+  language models are served from this origin rather than a third-party CDN.
 - **No HTML injection:** all API and OCR text is rendered through React's text
   escaping. PubMed records are parsed with `DOMParser`, and outbound study links
   are restricted to `https:` URLs.

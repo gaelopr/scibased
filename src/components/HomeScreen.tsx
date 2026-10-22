@@ -1,4 +1,5 @@
 import { BookOpenCheck, LockKeyhole, ScanText, Sparkles } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { MockKey } from "../types";
 import ClaimInput from "./ClaimInput";
 import TrendingList from "./TrendingList";
@@ -24,6 +25,8 @@ export default function HomeScreen({
   onDemo,
   analysisError,
 }: HomeScreenProps) {
+  const { t } = useLanguage();
+
   return (
     <main className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-2 pt-9 sm:px-6 sm:pt-12 lg:pt-16">
       <section className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(400px,470px)] lg:gap-14 xl:gap-20">
@@ -33,21 +36,19 @@ export default function HomeScreen({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
             </span>
-            For the science side of TikTok
+            {t("home.eyebrow")}
           </div>
 
           <h1 className="max-w-[620px] text-[46px] font-semibold leading-[0.96] tracking-[-0.055em] text-white sm:text-[62px] lg:text-[70px]">
-            Science, not
+            {t("home.heroLead")}
             <br />
             <span className="font-serif font-normal italic tracking-[-0.04em] text-emerald-300">
-              screenshots.
+              {t("home.heroAccent")}
             </span>
           </h1>
 
-          <p className="mt-5 max-w-[420px] text-[14.5px] leading-[1.75] text-slate-400 sm:mt-6 sm:text-[15.5px]">
-            Drop the screenshot. Paste the claim. SciBased searches PubMed and OpenAlex, reads the
-            open-access full text, and shows you the receipts — methods, results, limitations, and
-            all.
+          <p className="mt-5 max-w-[440px] text-[14.5px] leading-[1.75] text-slate-400 sm:mt-6 sm:text-[15.5px]">
+            {t("home.body")}
           </p>
 
           <div className="mt-7 hidden flex-wrap gap-x-5 gap-y-3 text-[11px] font-medium text-slate-400 sm:flex">
@@ -57,17 +58,17 @@ export default function HomeScreen({
             </span>
             <span className="inline-flex items-center gap-1.5">
               <ScanText className="h-3.5 w-3.5 text-emerald-400" strokeWidth={2} aria-hidden="true" />
-              Reads past the abstract
+              {t("home.pastAbstract")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <LockKeyhole className="h-3.5 w-3.5 text-emerald-400" strokeWidth={2} aria-hidden="true" />
-              No sign-up
+              {t("home.noSignup")}
             </span>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-2">
             <span className="mr-0.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-              Works with
+              {t("home.worksWith")}
             </span>
             {socialPlatforms.map((platform) => (
               <span
@@ -78,7 +79,7 @@ export default function HomeScreen({
               </span>
             ))}
             <span className="ml-1 hidden text-[10px] text-slate-400 sm:inline">
-              screenshots
+              {t("home.screenshots")}
             </span>
           </div>
 
@@ -87,9 +88,7 @@ export default function HomeScreen({
               <Sparkles className="h-3.5 w-3.5" strokeWidth={1.9} aria-hidden="true" />
             </span>
             <p className="text-[11.5px] leading-[1.7] text-slate-400">
-              Built for the claims that take over your group chat. Every verdict is grounded in
-              peer-reviewed research — not a vibe check. Full text is read only when it is legally
-              open access.
+              {t("home.built")}
             </p>
           </div>
         </div>

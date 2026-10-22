@@ -1,4 +1,5 @@
 import { ArrowUpRight, BookMarked, FileText, Unlock } from "lucide-react";
+import { useLanguage } from "../i18n";
 import type { Paper } from "../types";
 import { safeExternalUrl } from "../lib/evidence/utils";
 
@@ -8,7 +9,8 @@ interface PaperCardProps {
 }
 
 export default function PaperCard({ paper, index }: PaperCardProps) {
-  const buttonLabel = `View Paper via ${paper.source}`;
+  const { t } = useLanguage();
+  const buttonLabel = t("paper.viewVia", { source: paper.source });
 
   return (
     <article className="group animate-fade-up rounded-[22px] border border-black/[0.045] bg-white p-5 text-ink-950 shadow-[0_16px_40px_-28px_rgba(0,0,0,0.65)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-26px_rgba(0,0,0,0.7)] sm:p-6">
@@ -22,13 +24,16 @@ export default function PaperCard({ paper, index }: PaperCardProps) {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="rounded-md bg-slate-100 px-2 py-1 text-[9.5px] font-semibold uppercase tracking-[0.09em] text-slate-600">
+            <span
+              lang="en"
+              className="rounded-md bg-slate-100 px-2 py-1 text-[9.5px] font-semibold uppercase tracking-[0.09em] text-slate-600"
+            >
               {paper.studyType}
             </span>
             {paper.openAccess && (
               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-1 text-[9.5px] font-semibold uppercase tracking-[0.09em] text-emerald-700">
                 <Unlock className="h-2.5 w-2.5" strokeWidth={2.4} aria-hidden="true" />
-                Open access
+                {t("paper.openAccess")}
               </span>
             )}
             <span className="ml-auto inline-flex items-center gap-1 text-[9.5px] font-semibold uppercase tracking-[0.11em] text-slate-500">
@@ -37,7 +42,10 @@ export default function PaperCard({ paper, index }: PaperCardProps) {
             </span>
           </div>
 
-          <h3 className="mt-3.5 max-w-[58ch] text-[15.5px] font-semibold leading-[1.45] tracking-[-0.01em] text-ink-950">
+          <h3
+            lang="en"
+            className="mt-3.5 max-w-[58ch] text-[15.5px] font-semibold leading-[1.45] tracking-[-0.01em] text-ink-950"
+          >
             {paper.title}
           </h3>
 
@@ -59,9 +67,11 @@ export default function PaperCard({ paper, index }: PaperCardProps) {
           <div className="mt-4 rounded-xl border border-slate-100 bg-slate-50/80 px-3.5 py-3">
             <p className="flex items-center gap-1.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] text-slate-600">
               <FileText className="h-3 w-3" strokeWidth={2.2} aria-hidden="true" />
-              What it found
+              {t("paper.whatFound")}
             </p>
-            <p className="mt-1.5 text-[12.5px] leading-[1.65] text-slate-600">{paper.finding}</p>
+            <p lang="en" className="mt-1.5 text-[12.5px] leading-[1.65] text-slate-600">
+              {paper.finding}
+            </p>
           </div>
 
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -75,7 +85,7 @@ export default function PaperCard({ paper, index }: PaperCardProps) {
               <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.4} aria-hidden="true" />
             </a>
             <span className="text-center text-[9.5px] text-slate-500 sm:text-right">
-              Opens in a new tab
+              {t("paper.newTab")}
             </span>
           </div>
         </div>
