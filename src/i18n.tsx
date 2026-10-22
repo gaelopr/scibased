@@ -259,6 +259,10 @@ const en = {
 
   "footer.disclaimer":
     "Evidence for nutrition, training, and supplement claims. Not medical advice — for personal health decisions, talk to a qualified clinician.",
+  "footer.support": "Support SciBased",
+  "footer.supportBody":
+    "Optional. Payments are handled by PayPal and never affect verdicts or evidence selection.",
+  "footer.supportCta": "Donate via PayPal",
   "footer.evidenceVia": "Evidence via",
 } as const;
 
@@ -511,6 +515,10 @@ const es: Record<TranslationKey, string> = {
 
   "footer.disclaimer":
     "Evidencia para nutrición, entrenamiento y suplementos. No es consejo médico: para decisiones de salud personal, habla con un profesional cualificado.",
+  "footer.support": "Apoya a SciBased",
+  "footer.supportBody":
+    "Opcional. Los pagos los gestiona PayPal y nunca afectan a los veredictos ni a la selección de evidencia.",
+  "footer.supportCta": "Donar con PayPal",
   "footer.evidenceVia": "Evidencia vía",
 };
 

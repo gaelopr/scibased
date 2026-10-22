@@ -26,6 +26,7 @@ The app is mobile-first, runs entirely in the browser, and does not require an a
 - **Three verdict states:** Verified (`#10B981`), Needs context (`#F59E0B`), Debunked (`#EF4444`).
 - **Per-study evidence cards:** design, direction, access, sample, directness, certainty, key finding, methods, limitations, risk of bias, extra excerpts, and links to PubMed, the publisher/DOI, open full text, and Google Scholar.
 - **Three clearly labelled sample verdicts** for previewing the interface. They are never mixed with live results.
+- **Optional donations:** a direct PayPal link in the footer. No payment form, iframe, or payment script runs in the app, and donations never affect verdicts or evidence selection.
 
 ## What it does not do
 
@@ -162,6 +163,14 @@ All sample citations are real and link to PubMed records.
 - Only the extracted claim text is sent to PubMed, OpenAlex, and Europe PMC.
 - API requests use `credentials: "omit"` and `referrerPolicy: "no-referrer"`.
 - There are no accounts, analytics, cookies, or server-side storage in this build.
+
+## Supporting SciBased
+
+SciBased is free, public, and account-free. Optional donations through the [PayPal payment page](https://www.paypal.com/ncp/payment/485LESHDZBELL) help support its development and maintenance.
+
+- Donations are optional and never influence verdicts, evidence selection, coverage, or ranking.
+- The footer link opens PayPal in a new tab. The app contains no payment form, iframe, or payment script, and never receives card or account data.
+- SciBased does not store donation status, amount, or donor identity.
 
 ## Security
 

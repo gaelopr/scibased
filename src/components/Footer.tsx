@@ -1,4 +1,4 @@
-import { FlaskConical } from "lucide-react";
+import { ArrowUpRight, FlaskConical, Heart } from "lucide-react";
 import { useLanguage } from "../i18n";
 
 export default function Footer() {
@@ -20,6 +20,24 @@ export default function Footer() {
         </div>
 
         <div className="text-[11px] leading-5 text-slate-400 sm:text-right">
+          <div className="mb-4 max-w-xs text-left sm:ml-auto">
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-emerald-300/80">
+              {t("footer.support")}
+            </p>
+            <p className="mt-1.5 text-[11px] leading-5 text-slate-400">
+              {t("footer.supportBody")}
+            </p>
+            <a
+              href="https://www.paypal.com/ncp/payment/485LESHDZBELL"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.08] px-3.5 py-2 text-[11px] font-semibold text-emerald-200 transition hover:-translate-y-px hover:border-emerald-300/35 hover:bg-emerald-400/[0.14] focus-visible:outline-offset-2"
+            >
+              <Heart className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+              {t("footer.supportCta")}
+              <ArrowUpRight className="h-3 w-3 opacity-70" strokeWidth={2} aria-hidden="true" />
+            </a>
+          </div>
           <p>
             {t("footer.evidenceVia")}{" "}
             <a
