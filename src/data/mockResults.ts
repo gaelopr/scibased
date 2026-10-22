@@ -5,258 +5,257 @@ import type { MockKey, VerdictResult } from "../types";
  * Every citation below is real and links directly to PubMed.
  */
 export const MOCK_RESULTS: Record<MockKey, VerdictResult> = {
-  iceWater: {
-    id: "iceWater",
-    verdict: "debunked",
-    label: "Debunked",
-    score: 14,
-    evidenceQuality: "Moderate",
-    category: "Hydration",
-    platform: "TikTok",
-    claim: "Drinking ice water causes gut issues and stops digestion.",
-    conclusion:
-      "Cold water can briefly slow stomach emptying, but there is no evidence it damages your gut or causes lasting digestive problems.",
-    contextLine:
-      "A small, temporary change in stomach emptying has been turned into a blanket health warning.",
-    breakdown: [
-      {
-        title: "The famous studies tested cold stress, not your drink",
-        body:
-          "Several experiments placed a participant's hand in ice water to trigger cold-pain stress. That is a different physiological pathway from swallowing a cold beverage — and the measured effect lasted minutes, not days.",
-      },
-      {
-        title: "A slower stomach is not a damaged stomach",
-        body:
-          "Small studies do show that cold liquids can empty from the stomach a little more slowly. But your body warms what you drink quickly, and researchers estimate any temperature effect on absorption lasts five minutes or less.",
-      },
-      {
-        title: "“Gut issues” were never the outcome being measured",
-        body:
-          "The research looked at gastric emptying and motility, not bloating, inflammation, or chronic digestive disease. You cannot infer a health problem from a short delay in a lab measurement.",
-      },
-      {
-        title: "Hydration still wins",
-        body:
-          "If cold water helps you drink more, that is a net positive. People with a diagnosed motility disorder or reflux should follow their clinician's individual advice — personal discomfort is not evidence of a universal effect.",
-      },
-    ],
-    remember:
-      "The temperature of your water is not a meaningful gut-health lever. How much you drink, and what else is on your plate, matters far more.",
-    papers: [
-      {
-        id: "p-brearley-2017",
-        title:
-          "Should Workers Avoid Consumption of Chilled Fluids in a Hot and Humid Climate?",
-        authors: "Brearley MB",
-        journal: "Safety and Health at Work",
-        year: 2017,
-        studyType: "Review",
-        finding:
-          "Hydration research does not support avoiding chilled fluids. Any temperature-related effect on gastric emptying is modest and lasts about five minutes or less; cold fluids may even improve intake.",
-        pmid: "29276629",
-        url: "https://pubmed.ncbi.nlm.nih.gov/29276629/",
-        source: "PubMed",
-        openAccess: true,
-      },
-      {
-        id: "p-fone-1990",
-        title:
-          "Gastroduodenal motility during the delayed gastric emptying induced by cold stress",
-        authors:
-          "Fone DR, Horowitz M, Maddox A, Akkermans LM, Read NW, Dent J",
-        journal: "Gastroenterology",
-        year: 1990,
-        studyType: "Clinical physiology study",
-        finding:
-          "Cold-pain stress delayed gastric emptying in seven healthy volunteers. The stimulus was cold stress, not drinking cold water, and the study did not assess gut damage.",
-        pmid: "2323509",
-        url: "https://pubmed.ncbi.nlm.nih.gov/2323509/",
-        source: "PubMed",
-      },
-      {
-        id: "p-nakae-2000",
-        title:
-          "Cold pain prolongs gastric emptying of liquid but not solid meal: an electrical impedance tomography (EIT) study",
-        authors:
-          "Nakae Y, Kagaya M, Takagi R, Matsutani Y, Horibe H, Kondo T",
-        journal: "Journal of Gastroenterology",
-        year: 2000,
-        studyType: "Small crossover trial",
-        finding:
-          "Hand immersion in 4°C water delayed emptying of a liquid meal in six healthy women; emptying of a solid meal was unaffected. Gut damage or chronic symptoms were not measured.",
-        pmid: "10955597",
-        url: "https://pubmed.ncbi.nlm.nih.gov/10955597/",
-        source: "PubMed",
-      },
-    ],
-  },
-
-  magnesium: {
-    id: "magnesium",
-    verdict: "context",
-    label: "Needs context",
-    score: 47,
-    evidenceQuality: "Low to moderate",
-    category: "Sleep",
-    platform: "Instagram",
-    claim: "Magnesium supplements improve deep sleep cycles and cure insomnia.",
-    conclusion:
-      "Magnesium may help some older adults fall asleep a little faster, but the evidence for “deep sleep” is thin and mixed.",
-    contextLine:
-      "There is a real signal here — just not the sweeping one the post promises.",
-    breakdown: [
-      {
-        title: "The best evidence is small and specific",
-        body:
-          "A 2021 meta-analysis pooled three randomized trials in 151 older adults with insomnia. Magnesium reduced sleep-onset latency by about 17 minutes, but the improvement in total sleep time was not statistically significant.",
-      },
-      {
-        title: "The certainty is low",
-        body:
-          "Those trials had moderate-to-high risk of bias, and the meta-analysis rated the evidence low to very low quality. A 2023 systematic review found observational links but contradictory results across randomized trials.",
-      },
-      {
-        title: "Nobody measured “deep sleep cycles”",
-        body:
-          "Most trials used subjective insomnia scores or sleep diaries, not EEG-verified slow-wave sleep. The claim describes a specific brain-state change that the evidence does not reliably demonstrate.",
-      },
-      {
-        title: "Deficiency is the exception",
-        body:
-          "If your magnesium intake is genuinely low, correcting it can support normal sleep. For people who are already sufficient, supplements are not a proven insomnia cure — and they can interact with some medications.",
-      },
-    ],
-    remember:
-      "Food sources and consistent sleep habits come first. If you are considering magnesium for insomnia, discuss dose and interactions with a clinician — especially if you have kidney disease.",
-    papers: [
-      {
-        id: "p-mah-2021",
-        title:
-          "Oral magnesium supplementation for insomnia in older adults: a Systematic Review & Meta-Analysis",
-        authors: "Mah J, Pitre T",
-        journal: "BMC Complementary Medicine and Therapies",
-        year: 2021,
-        studyType: "Systematic review & meta-analysis",
-        finding:
-          "Across three RCTs (151 older adults), magnesium cut sleep-onset latency by 17.4 minutes. Total sleep time improved by 16 minutes but was not statistically significant; certainty was low to very low.",
-        pmid: "33865376",
-        url: "https://pubmed.ncbi.nlm.nih.gov/33865376/",
-        source: "PubMed",
-        openAccess: true,
-      },
-      {
-        id: "p-abbasi-2012",
-        title:
-          "The effect of magnesium supplementation on primary insomnia in elderly: A double-blind placebo-controlled clinical trial",
-        authors:
-          "Abbasi B, Kimiagar M, Sadeghniiat K, Shirazi MM, Hedayati M, Rashidkhani B",
-        journal: "Journal of Research in Medical Sciences",
-        year: 2012,
-        studyType: "Randomized controlled trial",
-        finding:
-          "In 46 older adults, 500 mg of magnesium daily for eight weeks improved subjective insomnia scores, sleep efficiency, and sleep latency. Total sleep time did not differ significantly between groups.",
-        pmid: "23853635",
-        url: "https://pubmed.ncbi.nlm.nih.gov/23853635/",
-        source: "PubMed",
-        openAccess: true,
-      },
-      {
-        id: "p-arab-2023",
-        title:
-          "The Role of Magnesium in Sleep Health: a Systematic Review of Available Literature",
-        authors: "Arab A, Rafie N, Amani R, Shirani F",
-        journal: "Biological Trace Element Research",
-        year: 2023,
-        studyType: "Systematic review",
-        finding:
-          "Observational studies linked magnesium status with sleep quality, but randomized trials showed an uncertain association. The review called for larger, longer, better-designed trials.",
-        pmid: "35184264",
-        url: "https://pubmed.ncbi.nlm.nih.gov/35184264/",
-        source: "PubMed",
-      },
-    ],
-  },
-
   creatine: {
     id: "creatine",
     verdict: "verified",
     label: "Verified",
-    score: 93,
+    score: 86,
     evidenceQuality: "High",
-    category: "Supplements",
-    platform: "X",
-    claim: "Creatine supplementation is safe for healthy kidneys.",
+    category: "Muscle & strength",
+    platform: "TikTok",
+    claim:
+      "Creatine supplementation, combined with resistance training, increases muscle mass and strength.",
     conclusion:
-      "In healthy adults, controlled studies find no evidence that recommended creatine doses harm kidney function.",
+      "The effect is real, but modest: creatine adds a small amount of muscle and strength on top of a solid resistance-training program. It is not a shortcut that replaces training, protein, or calories.",
     contextLine:
-      "The concern comes from a lab marker that can rise without any change in how well the kidneys filter.",
+      "A legitimate supplement with a small, consistent edge — not the transformation the before-and-after photos imply.",
     breakdown: [
       {
-        title: "“High creatinine” is not automatically kidney damage",
+        title: "The direct-imaging trials found a small effect",
         body:
-          "Creatine breaks down into creatinine, the waste product kidney tests measure. Supplementing can raise blood creatinine simply because there is more creatine to break down — even when filtration is completely normal.",
+          "A 2023 meta-analysis pooled 10 randomized trials and 44 direct-imaging outcomes (MRI, CT, or ultrasound). Creatine plus resistance training produced a very small increase in regional muscle hypertrophy compared with resistance training alone: a pooled standardized estimate of 0.11, with upper- and lower-body muscle thickness about 0.10–0.16 cm greater.",
       },
       {
-        title: "Direct filtration tests are reassuring",
+        title: "Body composition moves in the right direction",
         body:
-          "A 12-week randomized trial in resistance-trained adults on high-protein diets measured glomerular filtration rate directly with 51Cr-EDTA. Kidney function stayed normal in the creatine group.",
+          "A 2024 meta-analysis of 12 randomized trials found that creatine plus resistance training increased lean body mass by 1.14 kg and reduced fat mass by 0.73 kg versus resistance training alone. Roughly 7 g/day, or 0.3 g/kg/day, was enough to produce about 1 kg more lean mass; adding a carbohydrate drink did not enhance the effect.",
       },
       {
-        title: "Long-term use has been monitored",
+        title: "Training is doing most of the work",
         body:
-          "Reviews covering controlled use for up to five years found no adverse kidney effects in healthy people. Occasional case reports are not supported by the better-controlled trial evidence.",
+          "Every included trial combined creatine with resistance training. Creatine raises intramuscular phosphocreatine and can improve high-intensity performance, which may let you complete more productive training. The evidence does not show that creatine builds meaningful muscle on its own.",
       },
       {
-        title: "The real caveat is existing kidney disease",
+        title: "Safety and dose",
         body:
-          "Safety is established for healthy kidneys, not for every medical situation. If you have kidney disease, take nephrotoxic medication, or are unsure, talk to a clinician before starting.",
+          "The International Society of Sports Nutrition position stand supports 3–5 g/day and reports that short- and long-term use up to 30 g/day for five years is safe and well tolerated in healthy people. People with pre-existing kidney disease should discuss creatine with a clinician. Expect about 1 kg of scale weight from water retention, not new muscle.",
       },
     ],
     remember:
-      "Creatine monohydrate is one of the most studied sports supplements, but “safe for healthy kidneys” is not the same as “safe for everyone.” Dose, hydration, and medical history still matter.",
+      "Creatine is a small, reliable edge on top of training and protein — not a replacement for either.",
     papers: [
       {
-        id: "p-poortmans-2000",
+        id: "p-burke-2023",
         title:
-          "Adverse effects of creatine supplementation: fact or fiction?",
-        authors: "Poortmans JR, Francaux M",
-        journal: "Sports Medicine",
-        year: 2000,
-        studyType: "Review",
+          "The Effects of Creatine Supplementation Combined with Resistance Training on Regional Measures of Muscle Hypertrophy: A Systematic Review with Meta-Analysis",
+        authors: "Burke R, Piñero A, Coleman M, et al.",
+        journal: "Nutrients",
+        year: 2023,
+        studyType: "Systematic review & meta-analysis",
         finding:
-          "Short-, medium-, and long-term studies (up to five years) that monitored kidney function with clearance methods and urine protein excretion found no adverse renal effects in healthy individuals.",
-        pmid: "10999421",
-        url: "https://pubmed.ncbi.nlm.nih.gov/10999421/",
-        source: "PubMed",
-      },
-      {
-        id: "p-lugaresi-2013",
-        title:
-          "Does long-term creatine supplementation impair kidney function in resistance-trained individuals consuming a high-protein diet?",
-        authors:
-          "Lugaresi R, Leme M, de Salles Painelli V, Murai IH, Roschel H, Sapienza MT, Lancha Junior AH, Gualano B",
-        journal: "Journal of the International Society of Sports Nutrition",
-        year: 2013,
-        studyType: "Randomized controlled trial",
-        finding:
-          "A 12-week double-blind RCT measured glomerular filtration rate directly. Creatine did not affect kidney function in healthy, resistance-trained adults eating a high-protein diet.",
-        pmid: "23680457",
-        url: "https://pubmed.ncbi.nlm.nih.gov/23680457/",
+          "Across 10 randomized trials and 44 direct-imaging outcomes, creatine plus resistance training produced a very small increase in regional muscle hypertrophy versus resistance training alone (pooled estimate 0.11; 95% CrI −0.02 to 0.25).",
+        pmid: "37432300",
+        url: "https://pubmed.ncbi.nlm.nih.gov/37432300/",
         source: "PubMed",
         openAccess: true,
       },
       {
-        id: "p-longobardi-2023",
+        id: "p-desai-2024",
         title:
-          "Is It Time for a Requiem for Creatine Supplementation-Induced Kidney Failure? A Narrative Review",
-        authors: "Longobardi I, Gualano B, Seguro AC, Roschel H",
-        journal: "Nutrients",
-        year: 2023,
+          "The Effect of Creatine Supplementation on Resistance Training-Based Changes to Body Composition: A Systematic Review and Meta-analysis",
+        authors: "Desai I, Wewege MA, Jones MD, et al.",
+        journal: "Journal of Strength and Conditioning Research",
+        year: 2024,
+        studyType: "Systematic review & meta-analysis",
+        finding:
+          "In 12 randomized trials, creatine plus resistance training increased lean body mass by 1.14 kg and reduced fat mass by 0.73 kg versus resistance training alone; 7 g/day or 0.3 g/kg/day was likely enough.",
+        pmid: "39074168",
+        url: "https://pubmed.ncbi.nlm.nih.gov/39074168/",
+        source: "PubMed",
+      },
+      {
+        id: "p-kreider-2017",
+        title:
+          "International Society of Sports Nutrition position stand: safety and efficacy of creatine supplementation in exercise, sport, and medicine",
+        authors: "Kreider RB, Kalman DS, Antonio J, et al.",
+        journal: "Journal of the International Society of Sports Nutrition",
+        year: 2017,
+        studyType: "Position stand / review",
+        finding:
+          "Creatine increases intramuscular creatine and high-intensity performance, and short- and long-term use up to 30 g/day for five years is safe and well tolerated in healthy people.",
+        pmid: "28615996",
+        url: "https://pubmed.ncbi.nlm.nih.gov/28615996/",
+        source: "PubMed",
+        openAccess: true,
+      },
+    ],
+  },
+
+  protein: {
+    id: "protein",
+    verdict: "context",
+    label: "Needs context",
+    score: 56,
+    evidenceQuality: "High",
+    category: "Protein",
+    platform: "Instagram",
+    claim:
+      "You need at least 2 g of protein per kg of body weight to build muscle.",
+    conclusion:
+      "Most people max out resistance-training gains at roughly 1.6 g/kg/day. Two grams is not a requirement, though higher intakes can help preserve muscle during a calorie deficit.",
+    contextLine:
+      "The advice is half right: protein matters, but the 2 g threshold is a ceiling most lifters do not need to chase.",
+    breakdown: [
+      {
+        title: "The meta-analysis found a breakpoint, not a magic number",
+        body:
+          "A 2018 meta-analysis of 49 randomized trials with 1,863 participants found that protein supplementation increased fat-free mass by 0.30 kg, one-repetition-maximum strength by 2.49 kg, and muscle fibre cross-sectional area by 310 µm². Beyond a total intake of about 1.62 g/kg/day, there were no further gains in fat-free mass.",
+      },
+      {
+        title: "The practical range is about 1.6–2.2 g/kg",
+        body:
+          "A 2018 review recommends 0.4 g/kg of protein per meal across at least four meals to reach a minimum of 1.6 g/kg/day. An upper daily intake of 2.2 g/kg/day can be spread across the same meals. That is a range, not a minimum of 2 g/kg.",
+      },
+      {
+        title: "Some people do need more",
+        body:
+          "The International Society of Sports Nutrition position stand says 1.4–2.0 g/kg/day is sufficient for most exercising people. Higher intakes of 2.3–3.1 g/kg/day may be needed to preserve lean mass during hypocaloric periods. Protein quality, leucine content, and even distribution across the day also matter.",
+      },
+      {
+        title: "The claim confuses a ceiling with a floor",
+        body:
+          "Two grams per kilogram is not a harmful target for healthy kidneys, but it is not the minimum required for hypertrophy. Total calories, resistance-training stimulus, sleep, and adherence do more to determine muscle gain than pushing protein past the point where the benefit plateaus.",
+      },
+    ],
+    remember:
+      "Aim for 1.6–2.0 g/kg/day, spread across 3–5 protein-containing meals. More is not automatically better.",
+    papers: [
+      {
+        id: "p-morton-2018",
+        title:
+          "A systematic review, meta-analysis and meta-regression of the effect of protein supplementation on resistance training-induced gains in muscle mass and strength in healthy adults",
+        authors: "Morton RW, Murphy KT, McKellar SR, et al.",
+        journal: "British Journal of Sports Medicine",
+        year: 2018,
+        studyType: "Systematic review & meta-analysis",
+        finding:
+          "In 49 randomized trials with 1,863 participants, protein supplementation increased fat-free mass by 0.30 kg and strength by 2.49 kg; intakes above 1.62 g/kg/day produced no further gains in fat-free mass.",
+        pmid: "28698222",
+        url: "https://pubmed.ncbi.nlm.nih.gov/28698222/",
+        source: "PubMed",
+        openAccess: true,
+      },
+      {
+        id: "p-schoenfeld-aragon-2018",
+        title:
+          "How much protein can the body use in a single meal for muscle-building? Implications for daily protein distribution",
+        authors: "Schoenfeld BJ, Aragon AA",
+        journal: "Journal of the International Society of Sports Nutrition",
+        year: 2018,
         studyType: "Narrative review",
         finding:
-          "Controlled clinical trials do not support creatine-induced kidney damage. Serum creatinine may rise without kidney dysfunction; more research is still needed in people with pre-existing kidney disease.",
-        pmid: "36986197",
-        url: "https://pubmed.ncbi.nlm.nih.gov/36986197/",
+          "To maximize anabolism, target 0.4 g/kg/meal across at least four meals, reaching at least 1.6 g/kg/day; an upper intake of 2.2 g/kg/day can be spread across the same meals.",
+        pmid: "29497353",
+        url: "https://pubmed.ncbi.nlm.nih.gov/29497353/",
+        source: "PubMed",
+        openAccess: true,
+      },
+      {
+        id: "p-jager-2017",
+        title:
+          "International Society of Sports Nutrition Position Stand: protein and exercise",
+        authors: "Jäger R, Kerksick CM, Campbell BI, et al.",
+        journal: "Journal of the International Society of Sports Nutrition",
+        year: 2017,
+        studyType: "Position stand / review",
+        finding:
+          "1.4–2.0 g/kg/day is sufficient for most exercising people; 2.3–3.1 g/kg/day may be needed to preserve lean mass during hypocaloric periods.",
+        pmid: "28642676",
+        url: "https://pubmed.ncbi.nlm.nih.gov/28642676/",
+        source: "PubMed",
+        openAccess: true,
+      },
+    ],
+  },
+
+  coldPlunge: {
+    id: "coldPlunge",
+    verdict: "debunked",
+    label: "Debunked",
+    score: 18,
+    evidenceQuality: "Moderate",
+    category: "Recovery",
+    platform: "TikTok",
+    claim: "Cold plunges after lifting boost muscle growth.",
+    conclusion:
+      "Cold-water immersion may help you feel recovered, but controlled trials show it can blunt the muscle-building signal after resistance training. It is not an anabolic tool.",
+    contextLine:
+      "A recovery ritual got rebranded as a growth hack. The adaptation data point the other way.",
+    breakdown: [
+      {
+        title: "The 12-week trial found less growth, not more",
+        body:
+          "Twenty-one physically active men strength trained for 12 weeks, two days per week, followed by 10 minutes of cold-water immersion or active recovery. Strength and muscle mass increased more with active recovery. Type II fibre cross-sectional area rose 17%, myonuclei per fibre rose 26%, and isokinetic work rose 19% in the active-recovery group — not in the cold-water group.",
+      },
+      {
+        title: "A second trial separated hypertrophy from strength",
+        body:
+          "Sixteen men trained for seven weeks, three days per week, with 15 minutes at 10°C after each session or passive recovery. One-repetition-maximum leg press improved similarly in both groups, but type II fibre hypertrophy was attenuated with cold-water immersion and anabolic signalling was blunted. The authors concluded that post-exercise cold-water immersion should be avoided if muscle hypertrophy is desired.",
+      },
+      {
+        title: "Recovery and adaptation are different outcomes",
+        body:
+          "A 2021 review found that post-exercise cold-water immersion generally diminishes resistance-training adaptations, while aerobic performance may be unaffected or even enhanced. The authors propose using it around competition or intensified training, while strategically avoiding it after sessions focused on strength or hypertrophy.",
+      },
+      {
+        title: "What it can legitimately do",
+        body:
+          "Cold-water immersion can reduce soreness and perceived fatigue, and some athletes find it useful during dense competition schedules. That is a recovery effect, not a muscle-building effect. If you enjoy it, keep it away from key hypertrophy sessions or use it sparingly rather than after every lift.",
+      },
+    ],
+    remember:
+      "Cold plunge is a recovery tool, not a growth tool. If hypertrophy is the goal, keep it away from your lifting sessions.",
+    papers: [
+      {
+        id: "p-roberts-2015",
+        title:
+          "Post-exercise cold water immersion attenuates acute anabolic signalling and long-term adaptations in muscle to strength training",
+        authors: "Roberts LA, Raastad T, Markworth JF, et al.",
+        journal: "The Journal of Physiology",
+        year: 2015,
+        studyType: "Randomized controlled trial",
+        finding:
+          "In 21 men training for 12 weeks, strength and muscle mass increased more with active recovery than with 10 minutes of cold-water immersion; type II fibre cross-sectional area rose 17% and myonuclei 26% only in the active-recovery group.",
+        pmid: "26174323",
+        url: "https://pubmed.ncbi.nlm.nih.gov/26174323/",
+        source: "PubMed",
+        openAccess: true,
+      },
+      {
+        id: "p-fyfe-2019",
+        title:
+          "Cold water immersion attenuates anabolic signaling and skeletal muscle fiber hypertrophy, but not strength gain, following whole-body resistance training",
+        authors: "Fyfe JJ, Broatch JR, Trewin AJ, et al.",
+        journal: "Journal of Applied Physiology",
+        year: 2019,
+        studyType: "Randomized controlled trial",
+        finding:
+          "In 16 men training for seven weeks, cold-water immersion attenuated type II muscle fibre hypertrophy and blunted anabolic signalling, although 1RM leg press strength improved similarly; the authors recommend avoiding post-exercise cold-water immersion when hypertrophy is desired.",
+        pmid: "31513450",
+        url: "https://pubmed.ncbi.nlm.nih.gov/31513450/",
+        source: "PubMed",
+      },
+      {
+        id: "p-ihsan-2021",
+        title: "Adaptations to Post-exercise Cold Water Immersion: Friend, Foe, or Futile?",
+        authors: "Ihsan M, Abbiss CR, Allan R",
+        journal: "Frontiers in Sports and Active Living",
+        year: 2021,
+        studyType: "Review",
+        finding:
+          "Post-exercise cold-water immersion generally diminishes resistance-training adaptations while aerobic performance may be unaffected or enhanced; the authors propose avoiding it after strength or hypertrophy sessions.",
+        pmid: "34337408",
+        url: "https://pubmed.ncbi.nlm.nih.gov/34337408/",
         source: "PubMed",
         openAccess: true,
       },
@@ -264,9 +263,9 @@ export const MOCK_RESULTS: Record<MockKey, VerdictResult> = {
   },
 };
 
-export const MOCK_RESULT_ORDER: MockKey[] = ["iceWater", "magnesium", "creatine"];
+export const MOCK_RESULT_ORDER: MockKey[] = ["creatine", "protein", "coldPlunge"];
 
-export const DEMO_VERDICT_ORDER: MockKey[] = ["creatine", "magnesium", "iceWater"];
+export const DEMO_VERDICT_ORDER: MockKey[] = ["creatine", "protein", "coldPlunge"];
 
 /** A plausible stand-in for OCR output when someone uploads an image only. */
-export const MOCK_SCREENSHOT_CLAIM = MOCK_RESULTS.iceWater.claim;
+export const MOCK_SCREENSHOT_CLAIM = MOCK_RESULTS.protein.claim;

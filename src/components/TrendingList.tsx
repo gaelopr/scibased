@@ -1,10 +1,10 @@
 import {
   ArrowUpRight,
+  Beef,
   BookOpen,
-  Droplets,
   Dumbbell,
   Flame,
-  MoonStar,
+  Snowflake,
 } from "lucide-react";
 import { MOCK_RESULTS, MOCK_RESULT_ORDER } from "../data/mockResults";
 import { categoryLabel, useLanguage } from "../i18n";
@@ -17,9 +17,9 @@ interface TrendingListProps {
 }
 
 const categoryIcons = {
-  iceWater: Droplets,
-  magnesium: MoonStar,
   creatine: Dumbbell,
+  protein: Beef,
+  coldPlunge: Snowflake,
 } as const;
 
 export default function TrendingList({ onSelect }: TrendingListProps) {

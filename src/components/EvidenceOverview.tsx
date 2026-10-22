@@ -225,6 +225,11 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
                 {t("evidenceCheck.translatedNote")}
               </p>
             )}
+            {coverage.searchFocus === "nutrition-fitness" && (
+              <p className="mt-1.5 text-[9.5px] leading-4 text-emerald-200/70">
+                {t("evidenceCheck.nicheFocus")}
+              </p>
+            )}
           </div>
 
           {result.methodology && result.methodology.length > 0 && (

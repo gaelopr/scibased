@@ -1,5 +1,6 @@
 import type { ClaimType } from "../../types";
 import { MULTIWORD_CONCEPTS, STOPWORDS, SYNONYM_GROUPS } from "./config";
+import { detectEvidenceDomain, type EvidenceDomain } from "./domain";
 
 const QUERY_NOISE = new Set(
   `lower lowers lowered raise raises raised boost boosts boosted cure cures cured
@@ -26,6 +27,7 @@ export interface ParsedClaim {
   broadPubMedQuery: string;
   openAlexQuery: string;
   category: string;
+  domain: EvidenceDomain;
 }
 
 const CLAIM_TYPE_LABELS: Record<ClaimType, string> = {
@@ -42,6 +44,7 @@ export function parseClaim(claim: string): ParsedClaim {
   const claimType = detectClaimType(normalized);
   const concepts = extractConcepts(normalized, claimType);
   const keywords = unique(concepts.flatMap((concept) => concept.terms));
+  const domain = detectEvidenceDomain(normalized);
 
   return {
     original: claim,
@@ -54,7 +57,8 @@ export function parseClaim(claim: string): ParsedClaim {
     openAlexQuery: concepts
       .map((concept) => concept.terms.slice(0, 2).join(" "))
       .join(" "),
-    category: inferCategory(normalized, concepts),
+    category: inferCategory(normalized, concepts, domain),
+    domain,
   };
 }
 
@@ -86,7 +90,7 @@ export function detectClaimType(claim: string): ClaimType {
   }
 
   if (
-    /\b(improve|improves|improved|cure|cures|cured|treat|treats|treated|prevent|prevents|prevented|reduce|reduces|reduced|lower|lowers|lowered|boost|boosts|boosted|benefit|benefits|beneficial|effective|efficacy)\b/.test(
+    /\b(improve|improves|improved|cure|cures|cured|treat|treats|treated|prevent|prevents|prevented|reduce|reduces|reduced|lower|lowers|lowered|boost|boosts|boosted|increase|increases|increased|raise|raises|raised|grow|grows|grew|build|builds|built|gain|gains|gained|benefit|benefits|beneficial|effective|efficacy)\b/.test(
       text,
     )
   ) {
@@ -113,19 +117,25 @@ function extractConcepts(claim: string, claimType: ClaimType): Concept[] {
   const concepts: Concept[] = [];
   const consumed = new Set<string>();
 
-  // 1. Match multi-word concepts first.
+  // 1. Match multi-word concepts first. If every word in a later match has
+  // already been consumed by a more specific concept (e.g. "cold water
+  // immersion" before "cold water"), do not add a duplicate concept.
   for (const entry of MULTIWORD_CONCEPTS) {
-    if (!entry.pattern.test(lower)) continue;
+    const match = lower.match(entry.pattern);
+    if (!match) continue;
+
+    const matchedWords = tokenize(match[0]);
+    if (matchedWords.length > 0 && matchedWords.every((word) => consumed.has(word))) {
+      continue;
+    }
+
     const terms = SYNONYM_GROUPS[entry.key] ?? [entry.key.replace(/_/g, " ")];
     concepts.push({
       key: entry.key,
       terms: unique(terms),
       score: 6,
     });
-    const match = lower.match(entry.pattern);
-    if (match) {
-      for (const word of tokenize(match[0])) consumed.add(word);
-    }
+    for (const word of matchedWords) consumed.add(word);
   }
 
   // 2. Tokenize the rest and fold in known synonym groups.
@@ -244,11 +254,28 @@ function quote(term: string): string {
   return /\s|-/.test(cleaned) ? `"${cleaned}"` : cleaned;
 }
 
-function inferCategory(claim: string, concepts: Concept[]): string {
+function inferCategory(
+  claim: string,
+  concepts: Concept[],
+  domain: EvidenceDomain,
+): string {
   const keys = new Set(concepts.map((concept) => concept.key));
 
-  if (keys.has("sleep")) return "Sleep";
+  if (keys.has("cold_plunge") || keys.has("recovery")) return "Recovery";
   if (keys.has("kidney")) return "Kidney health";
+  if (keys.has("protein")) return "Protein";
+  if (
+    keys.has("hypertrophy") ||
+    keys.has("strength") ||
+    keys.has("resistance_training") ||
+    keys.has("training_failure")
+  ) {
+    return "Muscle & strength";
+  }
+  if (keys.has("body_composition") || keys.has("caloric_deficit") || keys.has("bulking")) {
+    return "Body composition";
+  }
+  if (keys.has("sleep")) return "Sleep";
   if (keys.has("gut") || keys.has("digestion")) return "Digestion";
   if (keys.has("heart") || keys.has("blood_pressure") || keys.has("cholesterol")) {
     return "Heart health";
@@ -256,7 +283,7 @@ function inferCategory(claim: string, concepts: Concept[]): string {
   if (keys.has("weight_loss") || keys.has("fasting") || keys.has("keto")) {
     return "Metabolism";
   }
-  if (keys.has("creatine") || keys.has("protein") || keys.has("collagen")) {
+  if (keys.has("creatine") || keys.has("collagen")) {
     return "Supplements";
   }
   if (keys.has("vitamin_d") || keys.has("magnesium") || keys.has("omega3")) {
@@ -269,6 +296,12 @@ function inferCategory(claim: string, concepts: Concept[]): string {
   if (keys.has("cancer")) return "Oncology";
   if (keys.has("diabetes") || keys.has("sugar")) return "Metabolic health";
   if (/vaccin|virus|covid|immun/i.test(claim)) return "Infectious disease";
+
+  // Keep the category useful for claims that are clearly in the niche but
+  // have no specific concept (for example, "is the gym bad for you?").
+  if (domain.niche === "fitness") return "Training";
+  if (domain.niche === "nutrition") return "Nutrition";
+  if (domain.niche === "both") return "Nutrition & fitness";
 
   return "General health";
 }

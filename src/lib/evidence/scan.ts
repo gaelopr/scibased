@@ -8,6 +8,7 @@ import {
   MAX_FULL_TEXTS,
   MAX_STUDIES,
 } from "./config";
+import { articleDomainBoost, isNicheDomain } from "./domain";
 import { buildStudy, detectDesign } from "./extract";
 import { fetchEuropePmcFullText } from "./fullText";
 import { synthesizeResult } from "./grade";
@@ -41,10 +42,15 @@ export async function runEvidenceScan(
 
   report(onProgress, {
     step: "query",
-    message: copy(
-      "Turning the claim into a focused literature query",
-      "Convirtiendo la afirmación en una búsqueda enfocada en la literatura",
-    ),
+    message: isNicheDomain(claim.domain)
+      ? copy(
+          "Focusing the search on nutrition, training, and sports-science evidence",
+          "Enfocando la búsqueda en evidencia de nutrición, entrenamiento y ciencias del deporte",
+        )
+      : copy(
+          "Turning the claim into a focused literature query",
+          "Convirtiendo la afirmación en una búsqueda enfocada en la literatura",
+        ),
     percent: 5,
   });
 
@@ -335,6 +341,11 @@ function scoreArticle(
       break;
   }
 
+  // A soft domain bias, never a hard filter: records from nutrition, exercise,
+  // and sports science rise when the claim belongs to SciBased's niche, while
+  // directly relevant papers from other fields can still be included.
+  score += articleDomainBoost(article, claim.domain);
+
   if (article.source === "PubMed") score += 0.6;
   if (article.year >= new Date().getFullYear() - 10) score += 0.2;
   if (article.citedByCount) score += Math.min(1.2, Math.log10(article.citedByCount + 1) * 0.45);
@@ -395,6 +406,7 @@ function buildCoverage(
       years.length > 0 ? `${years[0]}–${years[years.length - 1]}` : "No dated studies",
     limitations,
     translatedFrom,
+    searchFocus: isNicheDomain(claim.domain) ? "nutrition-fitness" : undefined,
   };
 }
 

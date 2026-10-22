@@ -1,6 +1,6 @@
 export type Verdict = "verified" | "context" | "debunked";
 
-export type MockKey = "creatine" | "magnesium" | "iceWater";
+export type MockKey = "creatine" | "protein" | "coldPlunge";
 
 export type PaperSource = "PubMed" | "Google Scholar" | "Europe PMC" | "OpenAlex";
 
@@ -87,6 +87,8 @@ export interface SearchCoverage {
   limitations: string[];
   /** Set when a non-English claim was locally translated for the search. */
   translatedFrom?: "Spanish";
+  /** Set when the scan prioritised nutrition / fitness records. */
+  searchFocus?: "nutrition-fitness";
 }
 
 export type AnalysisStep =

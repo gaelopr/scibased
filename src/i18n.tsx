@@ -17,11 +17,11 @@ const en = {
   "language.english": "English",
   "language.spanish": "Español",
   "language.note": "The interface switches; papers and quotes stay in English.",
-  "header.tagline": "Science-based receipts for your feed",
+  "header.tagline": "Nutrition, training & hypertrophy",
   "header.evidence": "Peer-reviewed evidence",
   "common.paper": "paper",
   "common.papers": "papers",
-  "app.homeTitle": "SciBased — Science-based receipts for your feed",
+  "app.homeTitle": "SciBased — Evidence for nutrition, training & hypertrophy",
   "app.loadingTitle": "Checking the papers · SciBased",
   "app.readingScreenshot": "Reading the claim from your screenshot…",
   "app.openingScreenshot": "Opening your screenshot on this device",
@@ -31,26 +31,27 @@ const en = {
   "app.genericError":
     "We couldn't complete that analysis. Please check your connection and try again.",
 
-  "home.eyebrow": "For the science side of TikTok",
+  "home.eyebrow": "Nutrition & fitness",
   "home.heroLead": "Science, not",
   "home.heroAccent": "screenshots.",
   "home.body":
-    "Drop the screenshot. Paste the claim. SciBased searches PubMed and OpenAlex, reads the open-access full text, and shows you the receipts — methods, results, limitations, and all.",
+    "Drop the screenshot. Paste the claim. SciBased searches PubMed and OpenAlex for nutrition, gym, and sports-science evidence, reads the open-access full text, and shows you the receipts — methods, results, limitations, and all.",
   "home.pastAbstract": "Reads past the abstract",
   "home.noSignup": "No sign-up",
   "home.worksWith": "Works with",
   "home.screenshots": "screenshots",
   "home.built":
-    "Built for the claims that take over your group chat. Every verdict is grounded in peer-reviewed research — not a vibe check. Full text is read only when it is legally open access.",
+    "Built for creatine, protein, training volume, hypertrophy, and the claims that take over your group chat. Every verdict is grounded in peer-reviewed research — not a vibe check. Full text is read only when it is legally open access.",
 
-  "trending.eyebrow": "On your FYP",
-  "trending.title": "Trending Verifications",
-  "trending.body": "The claims flooding your feed, checked against the papers.",
+  "trending.eyebrow": "From the gym side of your feed",
+  "trending.title": "Trending in nutrition & fitness",
+  "trending.body":
+    "Creatine, protein, cold plunges — the claims flooding your feed, checked against the papers.",
   "trending.sample": "Sample",
   "trending.preview": "Preview",
 
   "claim.title": "Drop the claim",
-  "claim.subtitle": "Screenshot or text — whatever you've got.",
+  "claim.subtitle": "Screenshot or text — nutrition, gym, hypertrophy.",
   "claim.free": "Free",
   "claim.fileTypeError":
     "That file type isn't supported. Please use a PNG, JPG, or WebP image.",
@@ -67,7 +68,7 @@ const en = {
   "claim.formats": "PNG · JPG · WebP · 10 MB",
   "claim.orPaste": "or paste the claim",
   "claim.textareaLabel": "Paste or type the scientific claim",
-  "claim.placeholder": "Or paste the claim here...",
+  "claim.placeholder": "e.g. Does creatine increase muscle growth?",
   "claim.cta": "Check the science",
   "claim.receipts": "Receipts included — papers, quotes, caveats",
   "claim.time": "Usually 10–30 seconds",
@@ -120,7 +121,7 @@ const en = {
     "Original research and systematic reviews, linked directly to their PubMed records.",
   "results.noReceipts": "No receipts yet.",
   "results.noReceiptsBody":
-    "That doesn’t mean the claim is false. It means the search needs a more concrete claim — name the exposure, population, and outcome. For example: “Does creatine affect kidney function in healthy adults?” Then run it again.",
+    "That doesn’t mean the claim is false. It means the search needs a more concrete claim — name the exposure, population, and outcome. For example: “Does creatine increase muscle growth in trained adults?” Then run it again.",
   "results.fullTextNote":
     "Full text was read for {read} of {total} included papers. The remaining papers were assessed from their abstracts only. No unauthorized full-text source was used.",
   "results.sampleEvidenceNote":
@@ -128,7 +129,7 @@ const en = {
   "results.keepDigging": "Keep digging",
   "results.nextClaim": "Check the next claim",
   "results.nextBody":
-    "Screenshot, quote, or a late-night health tip — get the evidence before you share.",
+    "Screenshot, quote, or a late-night gym tip — get the evidence before you share.",
   "results.newClaim": "New claim",
   "results.shareReceipts": "Share the receipts",
 
@@ -171,6 +172,12 @@ const en = {
   "category.metabolism": "Metabolism",
   "category.supplements": "Supplements",
   "category.nutrition": "Nutrition",
+  "category.muscle": "Muscle & strength",
+  "category.protein": "Protein",
+  "category.bodyComp": "Body composition",
+  "category.recovery": "Recovery",
+  "category.training": "Training",
+  "category.nutritionFitness": "Nutrition & fitness",
   "category.immunity": "Immunity",
   "category.brain": "Brain health",
   "category.oncology": "Oncology",
@@ -207,6 +214,8 @@ const en = {
   "evidenceCheck.publicationYears": "Publication years",
   "evidenceCheck.noDatedStudies": "No dated studies",
   "evidenceCheck.querySent": "Query sent to PubMed",
+  "evidenceCheck.nicheFocus":
+    "Nutrition and fitness focus: because this claim is in the niche, records from nutrition, exercise, and sports science were prioritised during screening. The verdict still follows the retrieved evidence.",
   "evidenceCheck.translatedNote":
     "The Spanish claim was translated locally into this English literature query. Papers and quotes are not translated.",
   "evidenceCheck.methodology": "How the verdict was produced",
@@ -249,7 +258,7 @@ const en = {
   "paper.newTab": "Opens in a new tab",
 
   "footer.disclaimer":
-    "Science-based receipts for the claims in your feed. Not medical advice — for personal health decisions, talk to a qualified clinician.",
+    "Evidence for nutrition, training, and supplement claims. Not medical advice — for personal health decisions, talk to a qualified clinician.",
   "footer.evidenceVia": "Evidence via",
 } as const;
 
@@ -260,11 +269,11 @@ const es: Record<TranslationKey, string> = {
   "language.english": "English",
   "language.spanish": "Español",
   "language.note": "La interfaz cambia; los artículos y las citas se muestran en inglés.",
-  "header.tagline": "Pruebas científicas para tu feed",
+  "header.tagline": "Nutrición, entrenamiento e hipertrofia",
   "header.evidence": "Evidencia revisada por pares",
   "common.paper": "estudio",
   "common.papers": "estudios",
-  "app.homeTitle": "SciBased — Pruebas científicas para tu feed",
+  "app.homeTitle": "SciBased — Evidencia para nutrición, entrenamiento e hipertrofia",
   "app.loadingTitle": "Revisando los estudios · SciBased",
   "app.readingScreenshot": "Leyendo la afirmación de tu captura…",
   "app.openingScreenshot": "Abriendo tu captura en este dispositivo",
@@ -274,26 +283,27 @@ const es: Record<TranslationKey, string> = {
   "app.genericError":
     "No pudimos completar ese análisis. Revisa tu conexión e inténtalo de nuevo.",
 
-  "home.eyebrow": "Para el lado científico de TikTok",
+  "home.eyebrow": "Nutrición y fitness",
   "home.heroLead": "Ciencia, no",
   "home.heroAccent": "capturas.",
   "home.body":
-    "Suelta la captura. Pega la afirmación. SciBased busca en PubMed y OpenAlex, lee el texto completo de acceso abierto y te muestra las pruebas: métodos, resultados, limitaciones y todo.",
+    "Suelta la captura. Pega la afirmación. SciBased busca en PubMed y OpenAlex evidencia de nutrición, gimnasio y ciencias del deporte, lee el texto completo de acceso abierto y te muestra las pruebas: métodos, resultados, limitaciones y todo.",
   "home.pastAbstract": "Lee más allá del resumen",
   "home.noSignup": "Sin registro",
   "home.worksWith": "Funciona con",
   "home.screenshots": "capturas",
   "home.built":
-    "Hecho para las afirmaciones que se apoderan de tu chat. Cada veredicto se basa en investigación revisada por pares, no en una corazonada. Solo leemos el texto completo cuando es de acceso abierto legal.",
+    "Hecho para creatina, proteína, volumen de entrenamiento, hipertrofia y las afirmaciones que se apoderan de tu chat. Cada veredicto se basa en investigación revisada por pares, no en una corazonada. Solo leemos el texto completo cuando es de acceso abierto legal.",
 
-  "trending.eyebrow": "En tu FYP",
-  "trending.title": "Verificaciones en tendencia",
-  "trending.body": "Las afirmaciones que inundan tu feed, contrastadas con los estudios.",
+  "trending.eyebrow": "Del lado fitness de tu feed",
+  "trending.title": "Tendencias en nutrición y fitness",
+  "trending.body":
+    "Creatina, proteína, baños de hielo: las afirmaciones que inundan tu feed, contrastadas con los estudios.",
   "trending.sample": "Ejemplo",
   "trending.preview": "Ver",
 
   "claim.title": "Suelta la afirmación",
-  "claim.subtitle": "Captura o texto: lo que tengas.",
+  "claim.subtitle": "Captura o texto: nutrición, gym, hipertrofia.",
   "claim.free": "Gratis",
   "claim.fileTypeError":
     "Ese tipo de archivo no es compatible. Usa una imagen PNG, JPG o WebP.",
@@ -310,7 +320,7 @@ const es: Record<TranslationKey, string> = {
   "claim.formats": "PNG · JPG · WebP · 10 MB",
   "claim.orPaste": "o pega la afirmación",
   "claim.textareaLabel": "Pega o escribe la afirmación científica",
-  "claim.placeholder": "O pega la afirmación aquí...",
+  "claim.placeholder": "Ej. ¿La creatina aumenta la masa muscular?",
   "claim.cta": "Revisa la ciencia",
   "claim.receipts": "Incluye pruebas: artículos, citas y advertencias",
   "claim.time": "Normalmente 10–30 segundos",
@@ -363,7 +373,7 @@ const es: Record<TranslationKey, string> = {
     "Investigación original y revisiones sistemáticas, enlazadas directamente a sus registros de PubMed.",
   "results.noReceipts": "Todavía no hay pruebas.",
   "results.noReceiptsBody":
-    "Eso no significa que la afirmación sea falsa. Significa que la búsqueda necesita una afirmación más concreta: nombra la exposición, la población y el resultado. Por ejemplo: «¿La creatina afecta la función renal en adultos sanos?». Vuelve a intentarlo.",
+    "Eso no significa que la afirmación sea falsa. Significa que la búsqueda necesita una afirmación más concreta: nombra la exposición, la población y el resultado. Por ejemplo: «¿La creatina aumenta la masa muscular en adultos entrenados?». Vuelve a intentarlo.",
   "results.fullTextNote":
     "Se leyó el texto completo de {read} de {total} estudios incluidos. El resto se evaluó solo con sus resúmenes. No se usó ninguna fuente no autorizada.",
   "results.sampleEvidenceNote":
@@ -371,7 +381,7 @@ const es: Record<TranslationKey, string> = {
   "results.keepDigging": "Sigue cavando",
   "results.nextClaim": "Revisa la próxima afirmación",
   "results.nextBody":
-    "Una captura, una cita o un consejo de salud de madrugada: mira la evidencia antes de compartirlo.",
+    "Una captura, una cita o un consejo de gym de madrugada: mira la evidencia antes de compartirlo.",
   "results.newClaim": "Nueva afirmación",
   "results.shareReceipts": "Comparte las pruebas",
 
@@ -414,6 +424,12 @@ const es: Record<TranslationKey, string> = {
   "category.metabolism": "Metabolismo",
   "category.supplements": "Suplementos",
   "category.nutrition": "Nutrición",
+  "category.muscle": "Músculo y fuerza",
+  "category.protein": "Proteína",
+  "category.bodyComp": "Composición corporal",
+  "category.recovery": "Recuperación",
+  "category.training": "Entrenamiento",
+  "category.nutritionFitness": "Nutrición y fitness",
   "category.immunity": "Inmunidad",
   "category.brain": "Salud cerebral",
   "category.oncology": "Oncología",
@@ -450,6 +466,8 @@ const es: Record<TranslationKey, string> = {
   "evidenceCheck.publicationYears": "Años de publicación",
   "evidenceCheck.noDatedStudies": "Sin estudios con fecha",
   "evidenceCheck.querySent": "Consulta enviada a PubMed",
+  "evidenceCheck.nicheFocus":
+    "Enfoque en nutrición y fitness: como esta afirmación pertenece al nicho, los registros de nutrición, ejercicio y ciencias del deporte se priorizaron durante la selección. El veredicto sigue basándose en la evidencia recuperada.",
   "evidenceCheck.translatedNote":
     "La afirmación en español se tradujo localmente a esta consulta en inglés. Los artículos y las citas no se traducen.",
   "evidenceCheck.methodology": "Cómo se produjo el veredicto",
@@ -492,7 +510,7 @@ const es: Record<TranslationKey, string> = {
   "paper.newTab": "Se abre en una pestaña nueva",
 
   "footer.disclaimer":
-    "Pruebas científicas para las afirmaciones de tu feed. No es consejo médico: para decisiones de salud personal, habla con un profesional cualificado.",
+    "Evidencia para nutrición, entrenamiento y suplementos. No es consejo médico: para decisiones de salud personal, habla con un profesional cualificado.",
   "footer.evidenceVia": "Evidencia vía",
 };
 
@@ -608,6 +626,12 @@ export function categoryLabel(
     Metabolism: "category.metabolism",
     Supplements: "category.supplements",
     Nutrition: "category.nutrition",
+    "Muscle & strength": "category.muscle",
+    Protein: "category.protein",
+    "Body composition": "category.bodyComp",
+    Recovery: "category.recovery",
+    Training: "category.training",
+    "Nutrition & fitness": "category.nutritionFitness",
     Immunity: "category.immunity",
     "Brain health": "category.brain",
     Oncology: "category.oncology",

@@ -21,12 +21,67 @@ const SPANISH_MARKERS = new Set(
   estrés melatonina cafeína alcohol tabaco vapeo dieta ayuno intermitente proteína colágeno
   vitamina omega cáncer diabetes renal función adultos sanos sanas personas gente todos todas
   siempre nunca dramáticamente dramático dramática cura milagro milagrosa milagroso
+  gimnasio entrenamiento fuerza hipertrofia musculo musculos rutina series repeticiones
+  sentadilla peso muerto cardio correr recuperacion agujetas grasa calorias deficit superavit
+  suplemento suplementos aminoacidos electrolitos hidratacion nutricion alimentacion rendimiento
+  atleta deportista
   suefio sueno sueiio rinon rinones dana danan`
     .split(/\s+/)
     .filter(Boolean),
 );
 
+/**
+ * Unambiguous Spanish words that are enough on their own. Without this, a
+ * one-word claim such as "creatina" or "hipertrofia" was treated as English and
+ * sent to PubMed untranslated.
+ */
+const STRONG_SPANISH_MARKERS = new Set(
+  `creatina magnesio proteina proteína hipertrofia gimnasio entrenamiento entrenar
+  fuerza sentadilla sentadillas agujetas suplemento suplementos recuperacion recuperación
+  repeticiones rutina rendimiento nutricion nutrición alimentacion alimentación
+  musculo músculo musculos músculos grasa electrolitos hidratacion hidratación
+  aminoacidos aminoácidos calorias calorías superavit`
+    .split(/\s+/)
+    .filter(Boolean),
+);
+
 const PHRASES: Array<[string, string]> = [
+  ["inmersión en agua fría", "cold water immersion"],
+  ["inmersion en agua fria", "cold water immersion"],
+  ["baños de hielo", "ice baths"],
+  ["baño de hielo", "ice bath"],
+  ["entrenamiento de fuerza", "strength training"],
+  ["entrenamiento con pesas", "weight training"],
+  ["entrenamiento de hipertrofia", "hypertrophy training"],
+  ["entrenar al fallo", "train to failure"],
+  ["al fallo", "to failure"],
+  ["fallo muscular", "muscular failure"],
+  ["sobrecarga progresiva", "progressive overload"],
+  ["volumen de entrenamiento", "training volume"],
+  ["frecuencia de entrenamiento", "training frequency"],
+  ["recuperación muscular", "muscle recovery"],
+  ["recuperacion muscular", "muscle recovery"],
+  ["dolor muscular", "muscle soreness"],
+  ["aumento de masa muscular", "muscle growth"],
+  ["crecimiento muscular", "muscle growth"],
+  ["ganar músculo", "build muscle"],
+  ["ganar musculo", "build muscle"],
+  ["perder grasa", "lose fat"],
+  ["grasa corporal", "body fat"],
+  ["déficit calórico", "caloric deficit"],
+  ["deficit calorico", "caloric deficit"],
+  ["superávit calórico", "caloric surplus"],
+  ["superavit calorico", "caloric surplus"],
+  ["proteína por kilo", "protein per kilogram"],
+  ["proteina por kilo", "protein per kilogram"],
+  ["gramos de proteína", "grams of protein"],
+  ["gramos de proteina", "grams of protein"],
+  ["suero de leche", "whey protein"],
+  ["peso muerto", "deadlift"],
+  ["press de banca", "bench press"],
+  ["press militar", "overhead press"],
+  ["beta-alanina", "beta-alanine"],
+  ["beta alanina", "beta-alanine"],
   ["agua con hielo", "ice water"],
   ["agua fría", "cold water"],
   ["agua fria", "cold water"],
@@ -281,6 +336,112 @@ const WORDS: Record<string, string> = {
   todas: "all",
   algunos: "some",
   algunas: "some",
+  gimnasio: "gym",
+  gym: "gym",
+  entrenamiento: "training",
+  entrenamientos: "training",
+  entrenar: "train",
+  entrena: "trains",
+  entrenan: "train",
+  entrenado: "trained",
+  entrenada: "trained",
+  entrenados: "trained",
+  entrenadas: "trained",
+  fuerza: "strength",
+  hipertrofia: "hypertrophy",
+  músculos: "muscles",
+  musculos: "muscles",
+  muscular: "muscle",
+  masa: "mass",
+  magra: "lean",
+  magro: "lean",
+  rutina: "routine",
+  serie: "set",
+  series: "sets",
+  repetición: "repetition",
+  repeticion: "repetition",
+  repeticiones: "repetitions",
+  fallo: "failure",
+  sentadilla: "squat",
+  sentadillas: "squats",
+  dominadas: "pull-ups",
+  flexiones: "push-ups",
+  cardio: "cardio",
+  correr: "running",
+  bicicleta: "cycling",
+  caminar: "walking",
+  natación: "swimming",
+  natacion: "swimming",
+  atleta: "athlete",
+  atletas: "athletes",
+  deportista: "athlete",
+  deportistas: "athletes",
+  rendimiento: "performance",
+  recuperación: "recovery",
+  recuperacion: "recovery",
+  agujetas: "soreness",
+  lesión: "injury",
+  lesion: "injury",
+  rodilla: "knee",
+  espalda: "back",
+  hombro: "shoulder",
+  carbohidrato: "carbohydrate",
+  carbohidratos: "carbohydrates",
+  caloría: "calorie",
+  calorias: "calories",
+  calorías: "calories",
+  déficit: "deficit",
+  deficit: "deficit",
+  superávit: "surplus",
+  superavit: "surplus",
+  grasa: "fat",
+  grasas: "fats",
+  corporal: "body",
+  suplemento: "supplement",
+  suplementos: "supplements",
+  suplementación: "supplementation",
+  suplementacion: "supplementation",
+  aminoácido: "amino acid",
+  aminoacidos: "amino acids",
+  aminoácidos: "amino acids",
+  electrolito: "electrolyte",
+  electrolitos: "electrolytes",
+  hidratación: "hydration",
+  hidratacion: "hydration",
+  nutrición: "nutrition",
+  nutricion: "nutrition",
+  alimentación: "nutrition",
+  alimentacion: "nutrition",
+  comida: "food",
+  comer: "eat",
+  come: "eats",
+  ganar: "gain",
+  gana: "gains",
+  ganancias: "gains",
+  crecimiento: "growth",
+  volumen: "volume",
+  frecuencia: "frequency",
+  intensidad: "intensity",
+  descanso: "rest",
+  energía: "energy",
+  energia: "energy",
+  calambre: "cramp",
+  calambres: "cramps",
+  beta: "beta",
+  alanina: "alanine",
+  citrulina: "citrulline",
+  caseína: "casein",
+  caseina: "casein",
+  suero: "whey",
+  fibra: "fiber",
+  gramos: "grams",
+  gramo: "gram",
+  kilo: "kilogram",
+  kilos: "kilograms",
+  kilogramo: "kilogram",
+  kilogramos: "kilograms",
+  proteico: "protein",
+  proteica: "protein",
 };
 
 function escapeRegExp(value: string): string {
@@ -298,6 +459,7 @@ function detectSpanish(text: string): boolean {
   const lower = text.toLowerCase();
   if (/[ñáéíóúü¿¡]/.test(lower)) return true;
   const words = lower.match(/[a-záéíóúüñ]+/g) ?? [];
+  if (words.some((word) => STRONG_SPANISH_MARKERS.has(word))) return true;
   const markers = words.filter((word) => SPANISH_MARKERS.has(word)).length;
   return markers >= 2;
 }

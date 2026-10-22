@@ -26,6 +26,10 @@ interface ClassifiedSentence {
   support: boolean;
   contradict: boolean;
   mixed: boolean;
+  /** A direct, outcome-specific contradiction that should decide the study. */
+  decisive?: boolean;
+  /** A direct, outcome-specific result that supports a negated claim. */
+  decisiveSupport?: boolean;
 }
 
 export function buildStudy(
@@ -329,13 +333,52 @@ export function classifyDirection(
   sentences: ClassifiedSentence[];
 } {
   const claimType = claim.claimType;
+  const claimNegated = claimType === "efficacy" && isNegatedEfficacyClaim(claim.normalized);
   const classified: ClassifiedSentence[] = sentences.map(({ text, section }) => {
     const normalized = text.toLowerCase();
     if (isNonEvidenceSentence(text)) {
       return { text, section, support: false, contradict: false, mixed: false };
     }
-    const support = matchesAny(normalized, supportPatterns(claimType));
-    const contradict = matchesAny(normalized, contradictPatterns(claimType));
+
+    // Adaptation studies often report that cold-water immersion blunts the
+    // very outcome the claim says it boosts. Treat that as contradicting
+    // evidence rather than letting a stray "increased" or "suggested" tag it
+    // as support or a generic mixed result. For a negated claim ("cold plunges
+    // do not boost growth"), the same result is direct supporting evidence.
+    const coldImmersionClaim =
+      /\b(cold water immersion|cwi|cold plunge|ice bath)\b/i.test(normalized) &&
+      /\b(hypertroph|muscle (?:mass|growth|size)|strength|adaptation|anabolic)\b/i.test(normalized);
+    const coldImmersionSetback =
+      /\b(?:increased|greater|higher)\b[^.]{0,80}\b(?:active recovery|act|control|passive recovery)\b[^.]{0,80}\b(?:than|versus|vs\.?)\b[^.]{0,50}\b(?:cwi|cold water immersion|cold plunge|ice bath)\b/i.test(
+        normalized,
+      ) ||
+      /\b(?:cwi|cold water immersion|cold plunge|ice bath)\b[^.]{0,100}\b(?:attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit|lower|smaller|less)\w*\b/i.test(
+        normalized,
+      ) ||
+      /\b(?:attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit)\w*\b[^.]{0,100}\b(?:hypertroph|muscle (?:growth|mass|size)|strength gain|anabolic|adaptation)\b/i.test(
+        normalized,
+      ) ||
+      /\b(?:avoid|reconsider|refrain from)\b[^.]{0,100}\b(?:cold water immersion|cwi|cold plunge|ice bath)\b/i.test(
+        normalized,
+      );
+
+    if (claimType !== "safety" && coldImmersionClaim && coldImmersionSetback) {
+      return {
+        text,
+        section,
+        support: claimNegated,
+        contradict: !claimNegated,
+        mixed: false,
+        decisive: !claimNegated,
+        decisiveSupport: claimNegated,
+      };
+    }
+
+    let support = matchesAny(normalized, supportPatterns(claimType));
+    let contradict = matchesAny(normalized, contradictPatterns(claimType));
+    if (claimNegated) {
+      [support, contradict] = [contradict, support];
+    }
     const mixed = /\b(mixed|inconsistent|conflicting|heterogeneous|uncertain|equivocal|suggested|anecdotal|case reports?|almost nonexistent|rather than (?:renal|hepatic) impairment|transient increase|not necessarily)\b/.test(
       normalized,
     );
@@ -373,12 +416,29 @@ export function classifyDirection(
     return { text, section, support, contradict, mixed };
   });
 
-  const supportCount = classified.filter((item) => item.support && !item.contradict).length;
-  const contradictCount = classified.filter((item) => item.contradict).length;
-  const mixedCount = classified.filter((item) => item.mixed).length;
+  let supportCount = classified.filter((item) => item.support && !item.contradict).length;
+  let contradictCount = classified.filter((item) => item.contradict).length;
+  let mixedCount = classified.filter((item) => item.mixed).length;
+  const decisiveContradictions = classified.filter((item) => item.decisive).length;
+  const decisiveSupports = classified.filter((item) => item.decisiveSupport).length;
 
   let direction: StudyDirection = "unclear";
-  if (mixedCount > 0) direction = "mixed";
+  if (decisiveContradictions > 0) {
+    // A direct trial-level setback on the claimed outcome outranks generic
+    // "increased" or "suggested" language elsewhere in the abstract.
+    direction = "contradicts";
+    supportCount = 0;
+    contradictCount = Math.max(contradictCount, decisiveContradictions);
+    mixedCount = 0;
+  } else if (decisiveSupports > 0) {
+    // The same rule applies when a negated claim is directly supported by a
+    // trial-level setback: "cold plunges do not boost growth" is supported by
+    // a trial showing that cold-water immersion attenuated hypertrophy.
+    direction = "supports";
+    supportCount = Math.max(supportCount, decisiveSupports);
+    contradictCount = 0;
+    mixedCount = 0;
+  } else if (mixedCount > 0) direction = "mixed";
   else if (supportCount > 0 && contradictCount > 0) direction = "mixed";
   else if (supportCount > 0) direction = "supports";
   else if (contradictCount > 0) direction = "contradicts";
@@ -814,6 +874,23 @@ function hasNegation(text: string): boolean {
   );
 }
 
+/**
+ * Detect a negated efficacy claim without flipping phrases such as "increases
+ * muscle, not fat" where the negation applies to a different object.
+ */
+function isNegatedEfficacyClaim(claim: string): boolean {
+  if (
+    /\b(no evidence|no association|no link|not associated|not linked|not effective|no benefit)\b/i.test(
+      claim,
+    )
+  ) {
+    return true;
+  }
+  return /\b(no|not|never|doesn't|don't|does not|do not|cannot|can't)\b\s+(?:\w+\s+){0,3}(?:increase|increases|increased|improve|improves|improved|boost|boosts|boosted|reduce|reduces|reduced|build|builds|built|gain|gains|gained|grow|grows|grew|help|helps|helped|work|works|worked|affect|affects|affected|cause|causes|caused)\b/i.test(
+    claim,
+  );
+}
+
 function supportPatterns(claimType: ClaimType): RegExp[] {
   switch (claimType) {
     case "safety":
@@ -870,6 +947,7 @@ function contradictPatterns(claimType: ClaimType): RegExp[] {
         /\b(did not|does not|failed to)\b[^.]{0,60}\b(improve|reduce|increase|decrease|affect|change|lower)\b/i,
         /\bnot (?:significantly )?(?:effective|associated|different|superior)\b/i,
         /\b(no evidence (?:of|that)|little evidence|insufficient evidence)\b/i,
+        /\b(attenuat|blunt|diminish|impair|reduce|decrease|suppress|inhibit)\w*\b[^.]{0,80}\b(hypertroph|muscle (?:growth|mass|size)|strength gain|adaptation|anabolic)\b/i,
       ];
     case "causation":
       return [

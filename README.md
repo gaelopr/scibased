@@ -1,8 +1,8 @@
 # SciBased
 
-**Science-based receipts for your feed.**
+**Science-based receipts for nutrition, training, and hypertrophy.**
 
-SciBased checks viral health claims against peer-reviewed literature. Paste a claim or drop a screenshot, and it returns a plain-English verdict, the studies behind it, and the exact passages those judgments came from.
+SciBased checks viral nutrition, gym, and supplement claims against peer-reviewed literature. Paste a claim or drop a screenshot, and it returns a plain-English verdict, the studies behind it, and the exact passages those judgments came from.
 
 **Live site:** <https://gaelopr.github.io/scibased/>
 
@@ -15,10 +15,11 @@ The app is mobile-first, runs entirely in the browser, and does not require an a
 ## What is live
 
 - **Real literature search** through PubMed E-utilities and OpenAlex.
+- **Nutrition / fitness focus:** the claim parser detects nutrition, training, hypertrophy, recovery, and supplement claims. Matching records receive a soft ranking boost, and the selected evidence is prioritised for the niche. This is never a hard filter: directly relevant papers from other fields can still be included, and the verdict always follows the retrieved evidence.
 - **Open-access full-text reading** through Europe PMC for papers that legally expose full text. Results, methods, limitations, and quoted evidence are extracted; the app does not rely only on authors' conclusions.
 - **Paywalled papers** are assessed from the abstract and metadata only. **Sci-Hub and other unauthorized full-text sources are not used.**
 - **English and Spanish interface:** switch languages from the header. The choice is remembered on the device. Paper titles, abstracts, quotes, methodology, and evidence summaries are always shown in English, as published — the UI language never translates the evidence.
-- **Spanish claims for an English literature search:** a local, privacy-preserving glossary translates common Spanish health-claim vocabulary into English search concepts before the query is sent. The original wording is still displayed. This is a focused glossary, not a general translator; ambiguous claims work better in English.
+- **Spanish claims for an English literature search:** a local, privacy-preserving glossary translates common Spanish health-claim vocabulary into English search concepts before the query is sent. The original wording is still displayed. The glossary includes nutrition, training, hypertrophy, supplement, and recovery vocabulary, but it is a focused glossary, not a general translator; ambiguous claims work better in English.
 - **Local screenshot OCR** with Tesseract.js, using English and Spanish text models. The image stays on the device; only the extracted claim text is sent to the literature APIs.
 - **Deterministic verdict synthesis** based on study design, sample size, directness, consistency, risk of bias, access level, and the direction of the results. No LLM is asked to invent a conclusion.
 - **Transparent coverage:** records found, abstracts screened, studies included, full texts read, open-access links available, search date, exact query, and limitations.
@@ -75,9 +76,9 @@ The static output is written to `dist/`.
 
 ## How a scan works
 
-1. **Parse the claim** into concepts, claim type (safety, efficacy, causation, association, or mechanism), and a focused PubMed query.
+1. **Parse the claim** into concepts, claim type (safety, efficacy, causation, association, or mechanism), a focused PubMed query, and a nutrition / fitness domain signal.
 2. **Search PubMed** for relevance-ranked records and **OpenAlex** for supplemental records.
-3. **Screen the abstracts** for relevance to the claim's exposure and outcome.
+3. **Screen the abstracts** for relevance to the claim's exposure and outcome. When the claim is in the niche, nutrition, exercise, and sports-science records receive a ranking boost.
 4. **Include up to 10 studies** after screening.
 5. **Read full text** for up to 8 legally open-access papers through Europe PMC. Other papers are assessed from abstracts.
 6. **Extract evidence** — result sentences, methods, limitations, sample size, population, and direction — with exact quotes.
@@ -87,7 +88,9 @@ The static output is written to `dist/`.
 ### Evidence limits
 
 - Search is limited to English-language, PubMed- and OpenAlex-indexed literature with abstracts. Spanish claims are translated into a focused English query locally before searching; the returned evidence is not machine-translated.
-- The Spanish query helper covers common health and science vocabulary. A very idiomatic or ambiguous Spanish claim may need an English reformulation for a better search.
+- The Spanish query helper covers common health, nutrition, and training vocabulary. A very idiomatic or ambiguous Spanish claim may need an English reformulation for a better search.
+- The nutrition / fitness domain bias changes record ranking, not the verdict rules. It is possible for a non-niche paper to be included when it is the most direct evidence, and a niche claim can still surface a general safety or mechanism paper.
+- Domain detection is keyword-based. Ambiguous claims may be labelled as general or niche incorrectly; the coverage panel discloses when the focus was applied.
 - NCBI's unauthenticated E-utilities limit is respected by keeping the scan small.
 - Full text is read only where Europe PMC exposes it legally.
 - The direction label is an automated screening aid. The study card shows the sentence it relied on.
@@ -125,6 +128,7 @@ scibased/
 │  │     ├─ extract.ts            # designs, direction, samples, quotes
 │  │     ├─ grade.ts              # certainty, weighting, verdict
 │  │     ├─ query.ts              # claim parsing and query construction
+│  │     ├─ domain.ts             # nutrition / fitness detection and ranking bias
 │  │     ├─ translate.ts          # local Spanish → English search concepts
 │  │     └─ config.ts             # design weights, synonyms, limits
 │  ├─ i18n.tsx                    # English / Spanish UI dictionaries and language state
@@ -143,9 +147,9 @@ The sample claims are:
 
 | Claim | Verdict | Score |
 | --- | --- | --- |
-| Creatine supplementation is safe for healthy kidneys. | Verified | 93 |
-| Magnesium supplements improve deep sleep cycles and cure insomnia. | Needs context | 47 |
-| Drinking ice water causes gut issues and stops digestion. | Debunked | 14 |
+| Creatine supplementation, combined with resistance training, increases muscle mass and strength. | Verified | 86 |
+| You need at least 2 g of protein per kg of body weight to build muscle. | Needs context | 56 |
+| Cold plunges after lifting boost muscle growth. | Debunked | 18 |
 
 All sample citations are real and link to PubMed records.
 
@@ -162,7 +166,7 @@ All sample citations are real and link to PubMed records.
 ## Security
 
 - **Strict production CSP** (injected by `vite.config.ts`): scripts only from this origin, no form submissions, and network access limited to PubMed, Europe PMC, and OpenAlex. Framing protection is sent as an HTTP header where the host supports it (`frame-ancestors` is ignored in a meta tag).
-- **No dynamic HTML:** evidence text is rendered through React escaping; metadata HTML is decoded with an inert `DOMParser`.
+- **No dynamic HTML:** evidence text is rendered through React escaping; metadata HTML is decoded with an allow-list / numeric entity decoder, never by parsing untrusted HTML.
 - **Link allow-list:** study links from third-party metadata must use `https:`; `javascript:`, `data:`, `http:`, and `file:` links are dropped.
 - **API allow-list:** the fetch wrapper rejects origins outside the three literature APIs.
 - **Private disclosure:** see [`SECURITY.md`](SECURITY.md) and `/.well-known/security.txt`.
