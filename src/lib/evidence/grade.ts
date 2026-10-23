@@ -1,4 +1,5 @@
 import type {
+  BreakdownItem,
   Certainty,
   Paper,
   SearchCoverage,
@@ -153,7 +154,11 @@ export function synthesizeResult(
     certaintyRationale,
     claim,
   );
-  const remember = buildRemember(studies, certainty);
+  const caveatStudy = findCaveatStudy(studies);
+  const remember = buildRemember(studies, certainty, caveatStudy);
+  const rememberStudyIds = caveatStudy
+    ? [caveatStudy.id]
+    : studies.map((study) => study.id);
 
   return {
     id: `live-${Date.now()}`,
@@ -168,6 +173,7 @@ export function synthesizeResult(
     contextLine,
     breakdown,
     remember,
+    rememberStudyIds,
     papers: studies.map(toPaper),
     isSample: false,
     fromScreenshot: false,
@@ -279,16 +285,18 @@ function buildBreakdown(
   topStudy: Study | undefined,
   certaintyRationale: string,
   claim: ParsedClaim,
-): Array<{ title: string; body: string }> {
+): BreakdownItem[] {
   if (studies.length === 0) {
     return [
       {
         title: "The search came up empty",
         body: `No study passed relevance screening for this exact exposure and outcome. Try naming the exposure, population, and outcome more concretely (for example, “Does creatine affect kidney function in healthy adults?”).`,
+        studyIds: [],
       },
       {
         title: "What this does — and does not — mean",
         body: "An empty search is not evidence that the claim is false. It means the claim could not be matched to a testable body of research with the current query.",
+        studyIds: [],
       },
     ];
   }
@@ -318,34 +326,48 @@ function buildBreakdown(
     ? `${direct.length} ${direct.length === 1 ? "study" : "studies"} measured the claim's exposure and outcome directly. ${partial.length} measured a related or proxy outcome, and ${indirect.length} ${indirect.length === 1 ? "was" : "were"} indirect.`
     : `No study measured the exact claim directly. ${partial.length} measured a related or proxy outcome, and ${indirect.length} ${indirect.length === 1 ? "was" : "were"} indirect. This is a key reason the verdict is cautious.`;
 
+  // The certainty statement is grounded in the studies that actually created
+  // the uncertainty, not in the whole set by default.
+  const limitingStudies = studies.filter(
+    (study) =>
+      study.access === "abstract-only" ||
+      study.direction === "mixed" ||
+      study.direction === "unclear" ||
+      study.design === "animal" ||
+      study.design === "in-vitro" ||
+      study.certainty === "Low" ||
+      study.certainty === "Very low",
+  );
+  const certaintyStudies = limitingStudies.length > 0 ? limitingStudies : studies;
+
   return [
     {
       title: "What the strongest evidence found",
       body: topStudy
         ? `“${truncate(topStudy.finding, 320)}”${topCitation}`
         : "No individual study could be identified as the strongest source.",
+      studyIds: topStudy ? [topStudy.id] : [],
     },
     {
       title: "How the evidence lines up",
       body: `The scan included ${studies.length} ${studies.length === 1 ? "study" : "studies"}: ${designSummary}. ${supports.length} ${supports.length === 1 ? "was" : "were"} classified as supporting the claim, ${contradicts.length} as contradicting it, ${mixed.length} as mixed, and ${unclear.length} as unclear. This is a balance of evidence, not a vote count — study design, sample size, and directness change the weight of each result.`,
+      studyIds: studies.map((study) => study.id),
     },
     {
       title: "How directly it was tested",
       body: directnessBody + (animal.length ? ` ${animal.length} ${animal.length === 1 ? "study" : "studies"} used animal or laboratory models, so human relevance is uncertain.` : ""),
+      studyIds: studies.map((study) => study.id),
     },
     {
       title: "What limits the certainty",
       body: `${certaintyRationale}${absoluteClaim ? " The claim uses dramatic or absolute language, so the verdict was judged against that strength — not merely the direction of the evidence." : ""} The claim was read as ${claim.claimType === "efficacy" || claim.claimType === "association" ? "an" : "a"} ${claim.claimType} claim, which affects which outcomes count as direct evidence.`,
+      studyIds: certaintyStudies.map((study) => study.id),
     },
   ];
 }
 
-function buildRemember(studies: Study[], certainty: Certainty): string {
-  if (studies.length === 0) {
-    return "No evidence is not the same as evidence of no effect. Reformulate the claim with a specific exposure, population, and outcome before drawing a conclusion.";
-  }
-
-  const withLimitations = studies.find(
+function findCaveatStudy(studies: Study[]): Study | undefined {
+  return studies.find(
     (study) =>
       study.limitations &&
       !/not reported/i.test(study.limitations) &&
@@ -353,8 +375,18 @@ function buildRemember(studies: Study[], certainty: Certainty): string {
         study.limitations,
       ),
   );
+}
 
-  return `${withLimitations ? `A key caveat from the included research: “${truncate(withLimitations.limitations, 210)}” ` : ""}Certainty is ${certainty.toLowerCase()}. Automated extraction can misclassify a result — open the quoted sections and papers before acting on this verdict.`;
+function buildRemember(
+  studies: Study[],
+  certainty: Certainty,
+  caveatStudy: Study | undefined,
+): string {
+  if (studies.length === 0) {
+    return "No evidence is not the same as evidence of no effect. Reformulate the claim with a specific exposure, population, and outcome before drawing a conclusion.";
+  }
+
+  return `${caveatStudy ? `A key caveat from the included research: “${truncate(caveatStudy.limitations, 210)}” ` : ""}Certainty is ${certainty.toLowerCase()}. Automated extraction can misclassify a result — open the quoted sections and papers before acting on this verdict.`;
 }
 
 function buildMethodology(coverage: SearchCoverage, studies: Study[]): string[] {
@@ -363,6 +395,7 @@ function buildMethodology(coverage: SearchCoverage, studies: Study[]): string[] 
     `Screened ${coverage.recordsScreened} records and included the ${studies.length} most relevant studies across systematic reviews, trials, observational studies, and case reports.`,
     `Read abstracts for every included study and full text for ${coverage.fullTextsRead} legally open-access papers through Europe PMC. Results, methods, and limitations were extracted — not just the authors' conclusion.`,
     "Graded each study on design, sample size, directness, consistency, and risk of bias. Journal impact factor was not used as a proxy for quality.",
+    "Linked each plain-language synthesis statement to the included studies it draws from, so the reasoning can be audited statement by statement.",
     "Paywalled papers were assessed from their abstracts only. No Sci-Hub or other unauthorized full-text source was used.",
     "This is a structured automated evidence scan, not a registered systematic review. It cannot rule out publication bias or errors in the primary literature.",
   ];

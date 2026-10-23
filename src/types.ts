@@ -126,6 +126,12 @@ export interface Paper {
 export interface BreakdownItem {
   title: string;
   body: string;
+  /**
+   * IDs of the included studies (or sample papers) that this statement draws
+   * from. Every synthesis point should carry at least one source when evidence
+   * was found, so readers can jump from the claim to the underlying paper.
+   */
+  studyIds?: string[];
 }
 
 export interface VerdictResult {
@@ -142,6 +148,8 @@ export interface VerdictResult {
   contextLine: string;
   breakdown: BreakdownItem[];
   remember: string;
+  /** Studies that support the caveat in the "worth remembering" statement. */
+  rememberStudyIds?: string[];
   papers: Paper[];
   /**
    * True when the placeholder router had to fall back to a sample analysis.

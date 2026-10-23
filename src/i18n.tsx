@@ -124,6 +124,14 @@ const en = {
   "results.breakdownBadge": "Plain English",
   "results.breakdownBody":
     "The practical takeaway — and where the viral version stretches it.",
+  "results.traceabilityNote":
+    "Each point below is linked to the studies it draws from. Open a study to check its methods, exact quotes, and limitations.",
+  "results.statementsSourced": "{sourced}/{total} points linked",
+  "results.statementSources": "Based on",
+  "results.statementSourcesAria": "Studies supporting this statement",
+  "results.statementNoSources":
+    "No individual study supports this point; see the full evidence set below.",
+  "results.openSource": "Go to study {number}: {title}",
   "results.worthRemembering": "Worth remembering:",
   "results.evidenceEyebrow": "Studies & sources",
   "results.receipts": "The evidence",
@@ -398,6 +406,14 @@ const es: Record<TranslationKey, string> = {
   "results.breakdownBadge": "Inglés",
   "results.breakdownBody":
     "La conclusión práctica y dónde la versión viral la estira.",
+  "results.traceabilityNote":
+    "Cada punto siguiente está enlazado con los estudios de los que se extrae. Abre un estudio para revisar sus métodos, citas exactas y limitaciones.",
+  "results.statementsSourced": "{sourced}/{total} puntos enlazados",
+  "results.statementSources": "Basado en",
+  "results.statementSourcesAria": "Estudios que respaldan esta afirmación",
+  "results.statementNoSources":
+    "Ningún estudio individual respalda este punto; consulta el conjunto completo de evidencia abajo.",
+  "results.openSource": "Ir al estudio {number}: {title}",
   "results.worthRemembering": "Vale recordar:",
   "results.evidenceEyebrow": "Estudios y fuentes",
   "results.receipts": "La evidencia",

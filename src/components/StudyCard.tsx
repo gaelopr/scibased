@@ -108,7 +108,10 @@ export default function StudyCard({ study, index }: StudyCardProps) {
   });
 
   return (
-    <article className="group animate-fade-up rounded-2xl border border-line bg-surface p-5 shadow-card transition duration-200 hover:border-line-strong sm:p-6">
+    <article
+      id={`study-source-${index}`}
+      className="group animate-fade-up scroll-mt-24 rounded-2xl border border-line bg-surface p-5 shadow-card transition duration-200 target:border-brand-line target:ring-2 target:ring-brand-line hover:border-line-strong sm:p-6"
+    >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[10.5px] font-semibold uppercase tracking-[0.1em] text-faint">

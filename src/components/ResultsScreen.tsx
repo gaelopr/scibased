@@ -7,6 +7,7 @@ import {
   Languages,
   Layers3,
   Lightbulb,
+  Link2,
   ScanSearch,
   Share2,
 } from "lucide-react";
@@ -16,6 +17,7 @@ import type { VerdictResult } from "../types";
 import { verdictTheme } from "../lib/verdictTheme";
 import EvidenceOverview from "./EvidenceOverview";
 import PaperCard from "./PaperCard";
+import StatementSources from "./StatementSources";
 import StudyCard from "./StudyCard";
 import VerdictCard from "./VerdictCard";
 
@@ -30,6 +32,11 @@ export default function ResultsScreen({ result, onReset }: ResultsScreenProps) {
   const [copied, setCopied] = useState(false);
   const studies = result.studies ?? [];
   const evidenceCount = studies.length || result.papers.length;
+  const sourcedStatements = result.breakdown.filter(
+    (item) => (item.studyIds?.length ?? 0) > 0,
+  ).length;
+  const allStatementsSourced =
+    result.breakdown.length > 0 && sourcedStatements === result.breakdown.length;
 
   useEffect(() => {
     if (!copied) return;
@@ -136,6 +143,26 @@ export default function ResultsScreen({ result, onReset }: ResultsScreenProps) {
             <p className="mt-1.5 max-w-xl text-[12.5px] leading-5 text-subtle">
               {t("results.breakdownBody")}
             </p>
+            <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1.5">
+              <p className="max-w-xl text-[10.5px] leading-4 text-faint">
+                {t("results.traceabilityNote")}
+              </p>
+              {evidenceCount > 0 && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[9px] font-semibold uppercase tracking-[0.07em] ${
+                    allStatementsSourced
+                      ? "border-brand-line bg-brand-soft text-brand"
+                      : "border-caution-line bg-caution-soft text-caution-text"
+                  }`}
+                >
+                  <Link2 className="h-2.5 w-2.5" aria-hidden="true" />
+                  {t("results.statementsSourced", {
+                    sourced: sourcedStatements,
+                    total: result.breakdown.length,
+                  })}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -175,6 +202,11 @@ export default function ResultsScreen({ result, onReset }: ResultsScreenProps) {
                 >
                   {item.body}
                 </p>
+                <StatementSources
+                  ids={item.studyIds}
+                  studies={studies}
+                  papers={result.papers}
+                />
               </div>
             </li>
           ))}
@@ -184,10 +216,17 @@ export default function ResultsScreen({ result, onReset }: ResultsScreenProps) {
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-surface text-caution-text shadow-sm ring-1 ring-line">
             <Lightbulb className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
           </span>
-          <p className="text-[12px] leading-[1.7] text-muted sm:text-[12.5px]">
-            <span className="font-semibold text-ink-950">{t("results.worthRemembering")} </span>
-            <span lang="en">{result.remember}</span>
-          </p>
+          <div className="min-w-0">
+            <p className="text-[12px] leading-[1.7] text-muted sm:text-[12.5px]">
+              <span className="font-semibold text-ink-950">{t("results.worthRemembering")} </span>
+              <span lang="en">{result.remember}</span>
+            </p>
+            <StatementSources
+              ids={result.rememberStudyIds}
+              studies={studies}
+              papers={result.papers}
+            />
+          </div>
         </div>
       </section>
 

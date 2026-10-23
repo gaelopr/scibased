@@ -24,25 +24,30 @@ export const MOCK_RESULTS: Record<MockKey, VerdictResult> = {
         title: "The direct-imaging trials found a small effect",
         body:
           "A 2023 meta-analysis pooled 10 randomized trials and 44 direct-imaging outcomes (MRI, CT, or ultrasound). Creatine plus resistance training produced a very small increase in regional muscle hypertrophy compared with resistance training alone: a pooled standardized estimate of 0.11, with upper- and lower-body muscle thickness about 0.10–0.16 cm greater.",
+        studyIds: ["p-burke-2023"],
       },
       {
         title: "Body composition moves in the right direction",
         body:
           "A 2024 meta-analysis of 12 randomized trials found that creatine plus resistance training increased lean body mass by 1.14 kg and reduced fat mass by 0.73 kg versus resistance training alone. Roughly 7 g/day, or 0.3 g/kg/day, was enough to produce about 1 kg more lean mass; adding a carbohydrate drink did not enhance the effect.",
+        studyIds: ["p-desai-2024"],
       },
       {
         title: "Training is doing most of the work",
         body:
           "Every included trial combined creatine with resistance training. Creatine raises intramuscular phosphocreatine and can improve high-intensity performance, which may let you complete more productive training. The evidence does not show that creatine builds meaningful muscle on its own.",
+        studyIds: ["p-burke-2023", "p-desai-2024"],
       },
       {
         title: "Safety and dose",
         body:
           "The International Society of Sports Nutrition position stand supports 3–5 g/day and reports that short- and long-term use up to 30 g/day for five years is safe and well tolerated in healthy people. People with pre-existing kidney disease should discuss creatine with a clinician. Expect about 1 kg of scale weight from water retention, not new muscle.",
+        studyIds: ["p-kreider-2017"],
       },
     ],
     remember:
       "Creatine is a small, reliable edge on top of training and protein — not a replacement for either.",
+    rememberStudyIds: ["p-burke-2023", "p-desai-2024"],
     papers: [
       {
         id: "p-burke-2023",
@@ -110,25 +115,30 @@ export const MOCK_RESULTS: Record<MockKey, VerdictResult> = {
         title: "The meta-analysis found a breakpoint, not a magic number",
         body:
           "A 2018 meta-analysis of 49 randomized trials with 1,863 participants found that protein supplementation increased fat-free mass by 0.30 kg, one-repetition-maximum strength by 2.49 kg, and muscle fibre cross-sectional area by 310 µm². Beyond a total intake of about 1.62 g/kg/day, there were no further gains in fat-free mass.",
+        studyIds: ["p-morton-2018"],
       },
       {
         title: "The practical range is about 1.6–2.2 g/kg",
         body:
           "A 2018 review recommends 0.4 g/kg of protein per meal across at least four meals to reach a minimum of 1.6 g/kg/day. An upper daily intake of 2.2 g/kg/day can be spread across the same meals. That is a range, not a minimum of 2 g/kg.",
+        studyIds: ["p-schoenfeld-aragon-2018"],
       },
       {
         title: "Some people do need more",
         body:
           "The International Society of Sports Nutrition position stand says 1.4–2.0 g/kg/day is sufficient for most exercising people. Higher intakes of 2.3–3.1 g/kg/day may be needed to preserve lean mass during hypocaloric periods. Protein quality, leucine content, and even distribution across the day also matter.",
+        studyIds: ["p-jager-2017"],
       },
       {
         title: "The claim confuses a ceiling with a floor",
         body:
           "Two grams per kilogram is not a harmful target for healthy kidneys, but it is not the minimum required for hypertrophy. Total calories, resistance-training stimulus, sleep, and adherence do more to determine muscle gain than pushing protein past the point where the benefit plateaus.",
+        studyIds: ["p-morton-2018", "p-schoenfeld-aragon-2018", "p-jager-2017"],
       },
     ],
     remember:
       "Aim for 1.6–2.0 g/kg/day, spread across 3–5 protein-containing meals. More is not automatically better.",
+    rememberStudyIds: ["p-morton-2018", "p-schoenfeld-aragon-2018", "p-jager-2017"],
     papers: [
       {
         id: "p-morton-2018",
@@ -196,25 +206,30 @@ export const MOCK_RESULTS: Record<MockKey, VerdictResult> = {
         title: "The 12-week trial found less growth, not more",
         body:
           "Twenty-one physically active men strength trained for 12 weeks, two days per week, followed by 10 minutes of cold-water immersion or active recovery. Strength and muscle mass increased more with active recovery. Type II fibre cross-sectional area rose 17%, myonuclei per fibre rose 26%, and isokinetic work rose 19% in the active-recovery group — not in the cold-water group.",
+        studyIds: ["p-roberts-2015"],
       },
       {
         title: "A second trial separated hypertrophy from strength",
         body:
           "Sixteen men trained for seven weeks, three days per week, with 15 minutes at 10°C after each session or passive recovery. One-repetition-maximum leg press improved similarly in both groups, but type II fibre hypertrophy was attenuated with cold-water immersion and anabolic signalling was blunted. The authors concluded that post-exercise cold-water immersion should be avoided if muscle hypertrophy is desired.",
+        studyIds: ["p-fyfe-2019"],
       },
       {
         title: "Recovery and adaptation are different outcomes",
         body:
           "A 2021 review found that post-exercise cold-water immersion generally diminishes resistance-training adaptations, while aerobic performance may be unaffected or even enhanced. The authors propose using it around competition or intensified training, while strategically avoiding it after sessions focused on strength or hypertrophy.",
+        studyIds: ["p-ihsan-2021"],
       },
       {
         title: "What it can legitimately do",
         body:
           "Cold-water immersion can reduce soreness and perceived fatigue, and some athletes find it useful during dense competition schedules. That is a recovery effect, not a muscle-building effect. If you enjoy it, keep it away from key hypertrophy sessions or use it sparingly rather than after every lift.",
+        studyIds: ["p-ihsan-2021"],
       },
     ],
     remember:
       "Cold plunge is a recovery tool, not a growth tool. If hypertrophy is the goal, keep it away from your lifting sessions.",
+    rememberStudyIds: ["p-roberts-2015", "p-fyfe-2019", "p-ihsan-2021"],
     papers: [
       {
         id: "p-roberts-2015",
