@@ -5,7 +5,7 @@ import {
   ImageUp,
   Link2,
   ScanSearch,
-  Sparkles,
+  Search,
   Timer,
   X,
 } from "lucide-react";
@@ -148,33 +148,48 @@ export default function ClaimInput({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       onPaste={handlePaste}
-      className="relative overflow-hidden rounded-[26px] bg-white text-ink-950 shadow-[0_35px_80px_-30px_rgba(0,0,0,0.8)] ring-1 ring-white/10"
+      className={`relative overflow-hidden rounded-3xl border bg-surface text-ink-950 shadow-lift transition duration-200 ${
+        isDragging ? "border-brand-strong ring-4 ring-brand-strong/10" : "border-line"
+      }`}
     >
-      <div className="flex items-center justify-between gap-3 px-5 pb-4 pt-5 sm:px-6 sm:pt-6">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink-950 text-white">
-            <ScanSearch className="h-4 w-4" strokeWidth={2.1} aria-hidden="true" />
-          </span>
-          <div>
-            <h2 className="text-[14.5px] font-semibold tracking-[-0.015em]">{t("claim.title")}</h2>
-            <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
-              {t("claim.subtitle")}
-            </p>
-          </div>
+      {isDragging && (
+        <div
+          className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-brand-strong bg-brand-soft/95 text-center"
+          aria-hidden="true"
+        >
+          <ImageUp className="h-7 w-7 text-brand" strokeWidth={1.8} />
+          <p className="text-[14px] font-semibold text-brand-deep">{t("claim.dragActive")}</p>
+          <p className="text-[11.5px] text-brand/80">{t("claim.formats")}</p>
         </div>
-        <span className="hidden rounded-full bg-slate-100 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.13em] text-slate-600 sm:inline">
-          {t("claim.free")}
-        </span>
-      </div>
+      )}
 
-      <div className="px-5 sm:px-6">
+      <div className="p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand ring-1 ring-brand-line">
+              <ScanSearch className="h-[18px] w-[18px]" strokeWidth={2} aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-ink-950">
+                {t("claim.title")}
+              </h2>
+              <p className="mt-0.5 text-[12px] leading-5 text-subtle">
+                {t("claim.subtitle")}
+              </p>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-full bg-chip px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.09em] text-muted">
+            {t("claim.free")}
+          </span>
+        </div>
+
         {errorMessage && (
           <div
             id={errorId}
             role="alert"
-            className="mb-3 flex items-start gap-2 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-[11.5px] leading-5 text-red-700"
+            className="mt-4 flex items-start gap-2 rounded-xl border border-debunked-line bg-debunked-soft px-3 py-2.5 text-[12px] leading-5 text-debunked-text"
           >
-            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" strokeWidth={2.2} aria-hidden="true" />
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2.2} aria-hidden="true" />
             {errorMessage}
           </div>
         )}
@@ -190,164 +205,146 @@ export default function ClaimInput({
         />
 
         {imageFile ? (
-          <div className="animate-fade-in rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5">
-            <div className="flex items-center gap-3">
-              <div className="relative h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl bg-slate-200 ring-1 ring-black/5">
-                {previewUrl ? (
-                  <img
-                    src={previewUrl}
-                    alt={t("claim.previewAlt")}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="skeleton-light h-full w-full" />
-                )}
-                <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white ring-2 ring-white">
-                  <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
-                </span>
-              </div>
+          <div className="mt-4">
+            <p className="text-[12px] font-medium text-muted">{t("claim.inputLabel")}</p>
+            <div className="mt-2 animate-fade-in rounded-2xl border border-line bg-field p-3.5">
+              <div className="flex items-center gap-3">
+                <div className="relative h-[68px] w-[68px] shrink-0 overflow-hidden rounded-xl bg-chip-strong ring-1 ring-line">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt={t("claim.previewAlt")}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full animate-pulse bg-chip-strong" />
+                  )}
+                  <span className="absolute bottom-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-strong text-on-strong ring-2 ring-white">
+                    <Check className="h-3 w-3" strokeWidth={3} aria-hidden="true" />
+                  </span>
+                </div>
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[12.5px] font-semibold text-ink-950" title={imageFile.name}>
-                  {imageFile.name}
-                </p>
-                <p className="mt-0.5 text-[10.5px] text-slate-500">
-                  {t("claim.ready")} · {formatBytes(imageFile.size)}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-ink-950" title={imageFile.name}>
+                    {imageFile.name}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-subtle">
+                    {t("claim.imageReady")} · {formatBytes(imageFile.size)}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={openFilePicker}
+                    className="mt-1.5 text-[11px] font-semibold text-brand underline decoration-brand-line underline-offset-2 transition hover:text-brand-deep"
+                  >
+                    {t("claim.replace")}
+                  </button>
+                </div>
+
                 <button
                   type="button"
-                  onClick={openFilePicker}
-                  className="mt-1.5 text-[10.5px] font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-2 transition hover:text-emerald-800"
+                  onClick={() => {
+                    onImageChange(null);
+                    setFileError(null);
+                  }}
+                  aria-label={t("claim.remove")}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-line bg-surface text-subtle transition hover:border-line-strong hover:text-ink-800"
                 >
-                  {t("claim.replace")}
+                  <X className="h-4 w-4" strokeWidth={2.2} aria-hidden="true" />
                 </button>
               </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  onImageChange(null);
-                  setFileError(null);
-                }}
-                aria-label={t("claim.remove")}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700"
-              >
-                <X className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
-              </button>
             </div>
           </div>
         ) : (
-          <button
-            type="button"
-            onClick={openFilePicker}
-            aria-describedby={errorMessage ? errorId : undefined}
-            className={`group relative flex w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed px-5 py-7 text-center transition duration-300 sm:py-8 ${
-              isDragging
-                ? "scale-[0.995] border-emerald-400 bg-emerald-50/80"
-                : "border-slate-200 bg-slate-50/70 hover:border-emerald-300 hover:bg-emerald-50/40"
-            }`}
-          >
-            <span
-              className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-[0_8px_20px_-10px_rgba(15,23,42,0.25)] ring-1 ring-slate-200 transition duration-300 ${
-                isDragging
-                  ? "scale-110 border-emerald-200 text-emerald-600"
-                  : "group-hover:-translate-y-0.5 group-hover:text-emerald-600"
-              }`}
+          <div className="mt-4">
+            <label
+              htmlFor={textareaId}
+              className="text-[12px] font-medium text-muted"
             >
-              <ImageUp className="h-[22px] w-[22px]" strokeWidth={1.9} aria-hidden="true" />
-            </span>
-            <span className="mt-3.5 text-[14px] font-semibold tracking-[-0.01em] text-ink-950">
-              {isDragging ? t("claim.dragActive") : t("claim.drop")}
-            </span>
-            <span className="mt-1 text-[11.5px] leading-5 text-slate-500">
-              {t("claim.or")}{" "}
-              <span className="font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-2">
-                {t("claim.browse")}
+              {t("claim.inputLabel")}
+            </label>
+            <div className="relative mt-2">
+              <textarea
+                id={textareaId}
+                autoComplete="off"
+                value={claimText}
+                onChange={(event) => onClaimChange(event.target.value.slice(0, MAX_CLAIM_LENGTH))}
+                maxLength={MAX_CLAIM_LENGTH}
+                rows={4}
+                placeholder={t("claim.placeholder")}
+                aria-invalid={Boolean(errorMessage)}
+                aria-describedby={errorMessage ? errorId : undefined}
+                onKeyDown={(event) => {
+                  if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && canAnalyze) {
+                    event.preventDefault();
+                    onAnalyze();
+                  }
+                }}
+                className="w-full resize-none rounded-2xl border border-line bg-field px-4 pb-8 pt-3.5 text-[15px] leading-6 text-ink-950 placeholder:text-faint transition duration-200 focus:border-brand-strong focus:bg-surface focus:outline-none focus:ring-4 focus:ring-brand-strong/10"
+              />
+              <span className="pointer-events-none absolute bottom-2.5 right-3.5 text-[10px] tabular-nums text-faint">
+                {claimText.length} / {MAX_CLAIM_LENGTH}
               </span>
-            </span>
-            <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white/80 px-2.5 py-1 text-[9.5px] font-medium uppercase tracking-[0.07em] text-slate-600">
-              {t("claim.formats")}
-            </span>
-          </button>
+            </div>
+
+            <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-2">
+              <button
+                type="button"
+                onClick={openFilePicker}
+                className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[11.5px] font-medium text-muted transition hover:border-line-strong hover:bg-surface-muted hover:text-ink-950"
+              >
+                <ImageUp className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+                {t("claim.addScreenshot")}
+              </button>
+              <span className="text-[10.5px] text-faint">{t("claim.formats")}</span>
+              <span className="ml-auto hidden text-[10.5px] text-faint sm:inline">
+                {t("claim.dragHint")}
+              </span>
+            </div>
+          </div>
         )}
-
-        <div className="my-4 flex items-center gap-3" aria-hidden="true">
-          <span className="h-px flex-1 bg-slate-100" />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-600">
-            {t("claim.orPaste")}
-          </span>
-          <span className="h-px flex-1 bg-slate-100" />
-        </div>
-
-        <div className="relative">
-          <label htmlFor={textareaId} className="sr-only">
-            {t("claim.textareaLabel")}
-          </label>
-          <textarea
-            id={textareaId}
-            autoComplete="off"
-            value={claimText}
-            onChange={(event) => onClaimChange(event.target.value.slice(0, MAX_CLAIM_LENGTH))}
-            maxLength={MAX_CLAIM_LENGTH}
-            rows={4}
-            placeholder={t("claim.placeholder")}
-            onKeyDown={(event) => {
-              if ((event.metaKey || event.ctrlKey) && event.key === "Enter" && canAnalyze) {
-                event.preventDefault();
-                onAnalyze();
-              }
-            }}
-            className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50/60 px-4 pb-8 pt-3.5 text-[15px] leading-6 text-ink-950 placeholder:text-slate-500 transition duration-200 focus:border-emerald-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-emerald-500/10"
-          />
-          <span className="pointer-events-none absolute bottom-2.5 right-3.5 text-[9.5px] tabular-nums text-slate-500">
-            {claimText.length} / {MAX_CLAIM_LENGTH}
-          </span>
-        </div>
 
         <button
           type="button"
           onClick={onAnalyze}
           disabled={!canAnalyze}
-          className={`group mt-4 flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl text-[13.5px] font-semibold transition duration-300 ${
+          className={`group mt-5 flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl text-[14px] font-semibold transition duration-200 ${
             canAnalyze
-              ? "bg-ink-950 text-white shadow-[0_16px_30px_-16px_rgba(8,14,24,0.7)] hover:-translate-y-px hover:bg-slate-800 hover:shadow-[0_20px_34px_-16px_rgba(8,14,24,0.65)] active:translate-y-0"
-              : "cursor-not-allowed bg-slate-100 text-slate-400"
+              ? "bg-strong text-on-strong shadow-sm hover:-translate-y-px hover:bg-strong-hover hover:shadow-md active:translate-y-0"
+              : "cursor-not-allowed bg-chip text-faint"
           }`}
         >
-          <Sparkles
-            className={`h-4 w-4 transition ${canAnalyze ? "text-emerald-300" : "text-slate-400"}`}
-            strokeWidth={2.1}
+          <Search
+            className={`h-4 w-4 ${canAnalyze ? "text-on-strong-accent" : "text-faint"}`}
+            strokeWidth={2.2}
             aria-hidden="true"
           />
-          {t("claim.cta")}
+          {imageFile ? t("claim.ctaImage") : t("claim.cta")}
           <ArrowRight
-            className={`h-4 w-4 transition-transform duration-300 ${
-              canAnalyze ? "group-hover:translate-x-1" : ""
+            className={`h-4 w-4 transition-transform duration-200 ${
+              canAnalyze ? "group-hover:translate-x-0.5" : ""
             }`}
             strokeWidth={2.2}
             aria-hidden="true"
           />
         </button>
 
-        <div className="mt-3 flex items-center justify-between gap-3 px-0.5 text-[9.5px] text-slate-500">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 text-[10.5px] text-subtle">
           <span className="inline-flex items-center gap-1.5">
-            <Link2 className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+            <Link2 className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             {t("claim.receipts")}
           </span>
           <span className="hidden items-center gap-1.5 sm:inline-flex">
-            <Timer className="h-3 w-3" strokeWidth={2} aria-hidden="true" />
+            <Timer className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             {t("claim.time")}
           </span>
         </div>
 
-        <p className="mb-4 mt-2 text-[9.5px] leading-4 text-slate-500">
+        <p className="mt-2 text-[10.5px] leading-4 text-faint">
           {t("claim.searchNote")}
         </p>
       </div>
 
-      <div className="mt-5">
-        <DemoSwitcher onSelect={onDemo} />
-      </div>
+      <DemoSwitcher onSelect={onDemo} />
     </div>
   );
 }

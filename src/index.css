@@ -1,32 +1,181 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
 
-  --color-ink-950: #080e18;
-  --color-ink-900: #0c1522;
-  --color-ink-800: #152234;
-  --color-ink-700: #1e3047;
+/*
+ * Semantic colour tokens. The light values live on :root and the dark values
+ * are swapped on .dark, so every component keeps using readable utility names
+ * such as bg-surface, text-muted, or border-line in both themes.
+ */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-field: var(--field);
+  --color-chip: var(--chip);
+  --color-chip-strong: var(--chip-strong);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-decor: var(--decor);
+
+  --color-ink-950: var(--ink-950);
+  --color-ink-900: var(--ink-900);
+  --color-ink-800: var(--ink-800);
+  --color-ink-700: var(--ink-700);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-faint: var(--faint);
+
+  --color-strong: var(--strong);
+  --color-strong-hover: var(--strong-hover);
+  --color-on-strong: var(--on-strong);
+  --color-on-strong-accent: var(--on-strong-accent);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-line: var(--brand-line);
 
   --color-verified: #10b981;
   --color-caution: #f59e0b;
   --color-debunked: #ef4444;
 
-  --shadow-card: 0 24px 70px -30px rgba(2, 8, 20, 0.7);
+  --color-verified-soft: var(--verified-soft);
+  --color-verified-line: var(--verified-line);
+  --color-verified-text: var(--verified-text);
+  --color-caution-soft: var(--caution-soft);
+  --color-caution-line: var(--caution-line);
+  --color-caution-text: var(--caution-text);
+  --color-debunked-soft: var(--debunked-soft);
+  --color-debunked-line: var(--debunked-line);
+  --color-debunked-text: var(--debunked-text);
+
+  --shadow-card: var(--shadow-card-value);
+  --shadow-lift: var(--shadow-lift-value);
 }
 
 :root {
+  color-scheme: light;
+
+  --canvas: #f5f7f4;
+  --surface: #ffffff;
+  --surface-muted: #fafbf8;
+  --field: #f8faf8;
+  --chip: #f1f5f9;
+  --chip-strong: #e2e8f0;
+
+  --line: #e4e7e2;
+  --line-strong: #cbd5e1;
+  --decor: #cbd5e1;
+
+  --ink-950: #0b1220;
+  --ink-900: #111827;
+  --ink-800: #1f2937;
+  --ink-700: #374151;
+  --muted: #475569;
+  --subtle: #64748b;
+  --faint: #94a3b8;
+
+  --strong: #0b1220;
+  --strong-hover: #1e293b;
+  --on-strong: #ffffff;
+  --on-strong-accent: #6ee7b7;
+
+  --brand: #047857;
+  --brand-strong: #059669;
+  --brand-deep: #065f46;
+  --brand-soft: #ecfdf5;
+  --brand-line: #d1fae5;
+
+  --verified-soft: #ecfdf5;
+  --verified-line: #a7f3d0;
+  --verified-text: #065f46;
+  --caution-soft: #fffbeb;
+  --caution-line: #fde68a;
+  --caution-text: #92400e;
+  --debunked-soft: #fef2f2;
+  --debunked-line: #fecaca;
+  --debunked-text: #b91c1c;
+
+  --hero-glow: rgba(16, 185, 129, 0.08);
+  --focus-ring: rgba(5, 150, 105, 0.9);
+  --selection-bg: rgba(167, 243, 208, 0.9);
+  --selection-text: #064e3b;
+  --scroll-thumb: #cbd5e1;
+  --scroll-thumb-hover: #94a3b8;
+
+  --shadow-card-value: 0 1px 2px rgba(11, 18, 32, 0.03),
+    0 18px 44px -34px rgba(11, 18, 32, 0.28);
+  --shadow-lift-value: 0 2px 4px rgba(11, 18, 32, 0.04),
+    0 24px 56px -32px rgba(11, 18, 32, 0.24);
+}
+
+.dark {
   color-scheme: dark;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+  --canvas: #07100d;
+  --surface: #0f1814;
+  --surface-muted: #131e19;
+  --field: #0b1411;
+  --chip: #19251f;
+  --chip-strong: #24332b;
+
+  --line: #223229;
+  --line-strong: #34473c;
+  --decor: #34473c;
+
+  --ink-950: #f4f8f5;
+  --ink-900: #edf3ef;
+  --ink-800: #e1e9e4;
+  --ink-700: #cbd7d0;
+  --muted: #a6b4ac;
+  --subtle: #8b9b92;
+  --faint: #7f9188;
+
+  --strong: #f4f8f5;
+  --strong-hover: #dce8e1;
+  --on-strong: #07100d;
+  --on-strong-accent: #047857;
+
+  --brand: #34d399;
+  --brand-strong: #34d399;
+  --brand-deep: #6ee7b7;
+  --brand-soft: #0b2b21;
+  --brand-line: #1d4637;
+
+  --verified-soft: #072f24;
+  --verified-line: #14523d;
+  --verified-text: #6ee7b7;
+  --caution-soft: #2b2109;
+  --caution-line: #59400d;
+  --caution-text: #fcd34d;
+  --debunked-soft: #2f1113;
+  --debunked-line: #581a20;
+  --debunked-text: #fca5a5;
+
+  --hero-glow: rgba(52, 211, 153, 0.12);
+  --focus-ring: rgba(52, 211, 153, 0.9);
+  --selection-bg: rgba(6, 78, 59, 0.9);
+  --selection-text: #d1fae5;
+  --scroll-thumb: #2b3b32;
+  --scroll-thumb-hover: #3d5046;
+
+  --shadow-card-value: 0 1px 2px rgba(0, 0, 0, 0.24),
+    0 18px 44px -34px rgba(0, 0, 0, 0.8);
+  --shadow-lift-value: 0 2px 4px rgba(0, 0, 0, 0.28),
+    0 24px 56px -32px rgba(0, 0, 0, 0.78);
 }
 
 html {
   scroll-behavior: smooth;
-  background-color: #080e18;
+  background-color: var(--canvas);
 }
 
 body {
@@ -34,8 +183,11 @@ body {
   min-width: 320px;
   min-height: 100vh;
   font-family: var(--font-sans);
-  background-color: #080e18;
-  color: #f8fafc;
+  background-color: var(--canvas);
+  color: var(--ink-950);
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
 #root {
@@ -46,13 +198,21 @@ body {
   font-optical-sizing: auto;
 }
 
-::selection {
-  background: rgba(110, 231, 183, 0.3);
-  color: #f8fafc;
+.hero-glow {
+  background-image: radial-gradient(
+    70% 100% at 50% 0%,
+    var(--hero-glow),
+    transparent 72%
+  );
 }
 
-:where(button, a, input, textarea):focus-visible {
-  outline: 2px solid rgba(52, 211, 153, 0.8);
+::selection {
+  background: var(--selection-bg);
+  color: var(--selection-text);
+}
+
+:where(button, a, input, textarea, summary):focus-visible {
+  outline: 2px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -61,64 +221,17 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #080e18;
+  background: var(--canvas);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border: 2px solid #080e18;
+  background: var(--scroll-thumb);
+  border: 2px solid var(--canvas);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Atmosphere                                                                */
-/* -------------------------------------------------------------------------- */
-
-.page-grid {
-  background-image:
-    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
-  background-size: 64px 64px;
-  -webkit-mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, black 8%, transparent 74%);
-  mask-image: radial-gradient(ellipse 85% 65% at 50% 0%, black 8%, transparent 74%);
-}
-
-.verdict-texture {
-  background-image: radial-gradient(
-    circle at 1px 1px,
-    rgba(255, 255, 255, 0.2) 1px,
-    transparent 0
-  );
-  background-size: 18px 18px;
-  -webkit-mask-image: linear-gradient(135deg, black 0%, rgba(0, 0, 0, 0.45) 45%, transparent 75%);
-  mask-image: linear-gradient(135deg, black 0%, rgba(0, 0, 0, 0.45) 45%, transparent 75%);
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Loading skeletons                                                         */
-/* -------------------------------------------------------------------------- */
-
-.skeleton {
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.055) 25%,
-    rgba(255, 255, 255, 0.12) 37%,
-    rgba(255, 255, 255, 0.055) 63%
-  );
-  background-size: 400% 100%;
-  animation: skeleton-shimmer 1.7s ease-in-out infinite;
-}
-
-.skeleton-light {
-  border-radius: 999px;
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
-  background-size: 400% 100%;
-  animation: skeleton-shimmer 1.7s ease-in-out infinite;
+  background: var(--scroll-thumb-hover);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -126,29 +239,25 @@ body {
 /* -------------------------------------------------------------------------- */
 
 .animate-fade-up {
-  animation: fade-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fade-up 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.4s ease-out both;
+  animation: fade-in 0.35s ease-out both;
 }
 
 .animate-scale-in {
-  animation: scale-in 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: scale-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-page {
-  animation: page-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 2s ease-in-out infinite;
+  animation: page-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translate3d(0, 18px, 0);
+    transform: translate3d(0, 14px, 0);
   }
   to {
     opacity: 1;
@@ -168,7 +277,7 @@ body {
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.965);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
@@ -179,30 +288,11 @@ body {
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 10px, 0);
+    transform: translate3d(0, 8px, 0);
   }
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
-}
-
-@keyframes pulse-soft {
-  0%,
-  100% {
-    opacity: 0.55;
-  }
-  50% {
-    opacity: 1;
   }
 }
 

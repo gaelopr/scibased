@@ -8,12 +8,14 @@ import { MOCK_RESULTS } from "./data/mockResults";
 import { useLanguage, verdictLabel } from "./i18n";
 import { fetchScientificData } from "./lib/fetchScientificData";
 import { recognizeClaimFromImage } from "./lib/ocr";
+import { useTheme } from "./lib/useTheme";
 import type { AnalysisProgress, MockKey, VerdictResult } from "./types";
 
 type View = "home" | "loading" | "results";
 
 export default function App() {
   const { language, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [view, setView] = useState<View>("home");
   const [claimText, setClaimText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -43,13 +45,15 @@ export default function App() {
     claimOverride?: string,
     imageOverride?: File | null,
   ) {
-    const submittedClaim = (claimOverride ?? claimText).trim();
     const submittedImage =
       imageOverride === undefined ? imageFile : imageOverride;
+    const submittedClaim = submittedImage
+      ? ""
+      : (claimOverride ?? claimText).trim();
 
     if (!submittedClaim && !submittedImage) return;
 
-    const readFromScreenshot = Boolean(submittedImage) && submittedClaim.length === 0;
+    const readFromScreenshot = Boolean(submittedImage);
 
     setAnalysisError(null);
     setPendingClaim(submittedClaim || t("app.readingScreenshot"));
@@ -144,15 +148,17 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-ink-950">
-      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
-        <div className="page-grid absolute inset-0" />
-        <div className="absolute -top-52 left-1/2 h-[560px] w-[860px] -translate-x-1/2 rounded-full bg-emerald-500/[0.10] blur-[140px]" />
-        <div className="absolute right-[-180px] top-[34%] h-[440px] w-[440px] rounded-full bg-sky-400/[0.032] blur-[130px]" />
-        <div className="absolute -bottom-40 left-[-120px] h-[360px] w-[520px] rounded-full bg-emerald-400/[0.028] blur-[120px]" />
-      </div>
+    <div className="relative min-h-screen overflow-x-clip bg-canvas text-ink-950">
+      <div
+        className="hero-glow pointer-events-none fixed inset-x-0 top-0 z-0 h-[420px]"
+        aria-hidden="true"
+      />
 
-      <Header onHome={handleLogoClick} />
+      <Header
+        onHome={handleLogoClick}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
       <div key={view} className="animate-page relative z-10">
         {view === "home" && (

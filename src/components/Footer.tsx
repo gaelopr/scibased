@@ -5,69 +5,70 @@ export default function Footer() {
   const { t } = useLanguage();
 
   return (
-    <footer className="relative mt-16 border-t border-white/[0.06] sm:mt-20">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-6">
+    <footer className="relative mt-14 border-t border-line bg-surface/60 sm:mt-20">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-9 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
         <div className="flex items-start gap-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-slate-400">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-line bg-surface text-subtle shadow-sm">
             <FlaskConical className="h-4 w-4" strokeWidth={1.9} aria-hidden="true" />
           </span>
           <div>
-            <p className="text-[13px] font-semibold tracking-tight text-slate-200">SciBased</p>
-            <p className="mt-1.5 max-w-md text-[11.5px] leading-5 text-slate-400">
+            <p className="text-[13px] font-semibold tracking-tight text-ink-950">SciBased</p>
+            <p className="mt-1.5 max-w-md text-[11.5px] leading-5 text-subtle">
               {t("footer.disclaimer")}
+            </p>
+            <p className="mt-4 text-[10.5px] text-faint">
+              © {new Date().getFullYear()} SciBased
             </p>
           </div>
         </div>
 
-        <div className="text-[11px] leading-5 text-slate-400 sm:text-right">
-          <div className="mb-4 max-w-xs text-left sm:ml-auto">
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.16em] text-emerald-300/80">
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-line bg-surface p-4 shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.11em] text-subtle">
               {t("footer.support")}
             </p>
-            <p className="mt-1.5 text-[11px] leading-5 text-slate-400">
+            <p className="mt-1.5 text-[11.5px] leading-5 text-subtle">
               {t("footer.supportBody")}
             </p>
             <a
               href="https://www.paypal.com/ncp/payment/485LESHDZBELL"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/[0.08] px-3.5 py-2 text-[11px] font-semibold text-emerald-200 transition hover:-translate-y-px hover:border-emerald-300/35 hover:bg-emerald-400/[0.14] focus-visible:outline-offset-2"
+              className="mt-3 inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2 text-[11.5px] font-semibold text-ink-700 transition hover:border-brand-line hover:bg-brand-soft hover:text-brand-deep focus-visible:outline-offset-2"
             >
-              <Heart className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
+              <Heart className="h-3.5 w-3.5 text-brand-strong" strokeWidth={2} aria-hidden="true" />
               {t("footer.supportCta")}
-              <ArrowUpRight className="h-3 w-3 opacity-70" strokeWidth={2} aria-hidden="true" />
+              <ArrowUpRight className="h-3 w-3 opacity-60" strokeWidth={2.2} aria-hidden="true" />
             </a>
           </div>
-          <p>
-            {t("footer.evidenceVia")}{" "}
+
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10.5px] leading-5 text-subtle">
+            <span>{t("footer.evidenceVia")}</span>
             <a
               href="https://pubmed.ncbi.nlm.nih.gov/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 underline decoration-slate-700 underline-offset-2 transition hover:text-slate-200"
+              className="font-medium text-muted underline decoration-line-strong underline-offset-2 transition hover:text-ink-950"
             >
               PubMed
             </a>
-            ,{" "}
             <a
               href="https://openalex.org/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 underline decoration-slate-700 underline-offset-2 transition hover:text-slate-200"
+              className="font-medium text-muted underline decoration-line-strong underline-offset-2 transition hover:text-ink-950"
             >
               OpenAlex
-            </a>{" "}
-            &amp;{" "}
+            </a>
             <a
               href="https://europepmc.org/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 underline decoration-slate-700 underline-offset-2 transition hover:text-slate-200"
+              className="font-medium text-muted underline decoration-line-strong underline-offset-2 transition hover:text-ink-950"
             >
               Europe PMC
             </a>
-          </p>
-          <p className="mt-1">© {new Date().getFullYear()} SciBased</p>
+          </div>
         </div>
       </div>
     </footer>

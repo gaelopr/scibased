@@ -12,39 +12,41 @@ export default function DemoSwitcher({ onSelect }: DemoSwitcherProps) {
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col gap-2.5 border-t border-slate-100 bg-slate-50/80 px-5 py-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-      <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-600">
-        <FlaskConical className="h-3.5 w-3.5 text-slate-400" strokeWidth={2} aria-hidden="true" />
-        {t("demo.preview")}
-      </div>
+    <div className="border-t border-line bg-surface-muted px-5 py-3.5 sm:px-6">
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium text-subtle">
+          <FlaskConical className="h-3.5 w-3.5 text-faint" strokeWidth={2} aria-hidden="true" />
+          {t("demo.preview")}
+        </div>
 
-      <div
-        className="grid w-full grid-cols-3 gap-1.5 sm:flex sm:w-auto sm:flex-wrap sm:items-center"
-        role="group"
-        aria-label={t("demo.group")}
-      >
-        {DEMO_VERDICT_ORDER.map((key) => {
-          const result = MOCK_RESULTS[key];
-          const theme = verdictTheme[result.verdict];
+        <div
+          className="flex flex-wrap items-center gap-1.5"
+          role="group"
+          aria-label={t("demo.group")}
+        >
+          {DEMO_VERDICT_ORDER.map((key) => {
+            const result = MOCK_RESULTS[key];
+            const theme = verdictTheme[result.verdict];
 
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => onSelect(key)}
-              title={t("demo.title", {
-                verdict: verdictLabel(t, result.verdict).toLowerCase(),
-              })}
-              aria-label={t("demo.aria", {
-                verdict: verdictLabel(t, result.verdict),
-              })}
-              className="group inline-flex min-w-0 items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-2 py-1.5 text-[10.5px] font-medium text-slate-600 shadow-[0_1px_1px_rgba(15,23,42,0.03)] transition hover:-translate-y-px hover:border-slate-300 hover:text-slate-900 hover:shadow-sm active:translate-y-0 sm:px-2.5 sm:text-[11px]"
-            >
-              <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${theme.dot}`} aria-hidden="true" />
-              {verdictShortLabel(t, result.verdict)}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => onSelect(key)}
+                title={t("demo.title", {
+                  verdict: verdictLabel(t, result.verdict).toLowerCase(),
+                })}
+                aria-label={t("demo.aria", {
+                  verdict: verdictLabel(t, result.verdict),
+                })}
+                className="group inline-flex min-h-8 min-w-0 items-center justify-center gap-1.5 rounded-full border border-line bg-surface px-2.5 py-1.5 text-[10.5px] font-medium text-muted shadow-sm transition hover:-translate-y-px hover:border-line-strong hover:text-ink-950 active:translate-y-0"
+              >
+                <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${theme.dot}`} aria-hidden="true" />
+                {verdictShortLabel(t, result.verdict)}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
