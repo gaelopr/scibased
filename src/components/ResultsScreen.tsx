@@ -8,11 +8,12 @@ import {
   Layers3,
   Lightbulb,
   Link2,
+  Route,
   ScanSearch,
   Share2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLanguage } from "../i18n";
+import { useLanguage, verdictLabel } from "../i18n";
 import type { VerdictResult } from "../types";
 import { verdictTheme } from "../lib/verdictTheme";
 import EvidenceOverview from "./EvidenceOverview";
@@ -45,13 +46,7 @@ export default function ResultsScreen({ result, onReset }: ResultsScreenProps) {
   }, [copied]);
 
   async function handleShare() {
-    const label = t(
-      result.verdict === "verified"
-        ? "verdict.verified"
-        : result.verdict === "context"
-          ? "verdict.context"
-          : "verdict.debunked",
-    );
+    const label = verdictLabel(t, result.verdict);
     const text = `${label}: ${result.claim}\n\n${result.conclusion}`;
 
     try {
@@ -122,6 +117,33 @@ export default function ResultsScreen({ result, onReset }: ResultsScreenProps) {
         <div className="mt-3 flex items-start gap-2.5 rounded-2xl border border-line bg-surface px-4 py-3 text-[11.5px] leading-5 text-muted shadow-sm">
           <Languages className="mt-0.5 h-4 w-4 shrink-0 text-brand" strokeWidth={2} aria-hidden="true" />
           <p>{t("results.englishNote")}</p>
+        </div>
+      )}
+
+      {result.isLive && result.coverage?.redirect && (
+        <div className="mt-3 flex items-start gap-2.5 rounded-2xl border border-caution-line bg-caution-soft px-4 py-3.5 text-caution-text shadow-sm">
+          <Route className="mt-0.5 h-4 w-4 shrink-0" strokeWidth={2} aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="text-[12px] font-semibold leading-5">
+              {t("results.redirectTitle", {
+                from: result.coverage.redirect.from,
+                to: result.coverage.redirect.to.join(", "),
+              })}
+            </p>
+            <p className="mt-1 text-[11.5px] leading-[1.65]">
+              {t("results.redirectBody", {
+                from: result.coverage.redirect.from,
+                to: result.coverage.redirect.to.join(", "),
+              })}
+            </p>
+            <p className="mt-1.5 text-[10.5px] font-medium leading-4 opacity-90">
+              {result.coverage.redirect.relatedStudiesFound > 0
+                ? t("results.redirectCount", {
+                    count: result.coverage.redirect.relatedStudiesFound,
+                  })
+                : t("results.redirectNone")}
+            </p>
+          </div>
         </div>
       )}
 

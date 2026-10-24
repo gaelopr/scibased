@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import type { ReactNode } from "react";
+import type { Verdict } from "./types";
 
 export type Language = "en" | "es";
 
@@ -126,6 +127,11 @@ const en = {
     "The practical takeaway — and where the viral version stretches it.",
   "results.traceabilityNote":
     "Each point below is linked to the studies it draws from. Open a study to check its methods, exact quotes, and limitations.",
+  "results.redirectTitle": "No direct test of the exact claim — we widened the search",
+  "results.redirectBody":
+    "No direct study measured {from}. We looked for the closest evidence on {to}. It can inform a hypothesis, but it cannot verify or debunk the exact claim.",
+  "results.redirectCount": "{count} related studies included",
+  "results.redirectNone": "No closely related studies passed screening.",
   "results.statementsSourced": "{sourced}/{total} points linked",
   "results.statementSources": "Based on",
   "results.statementSourcesAria": "Studies supporting this statement",
@@ -163,18 +169,27 @@ const en = {
   "claimType.other": "Health claim",
 
   "verdict.verified": "Verified",
+  "verdict.leansFor": "Leans in favor",
   "verdict.context": "Needs context",
+  "verdict.leansAgainst": "Leans against",
   "verdict.debunked": "Debunked",
   "verdict.shortVerified": "Verified",
+  "verdict.shortLeansFor": "Leans for",
   "verdict.shortContext": "Context",
+  "verdict.shortLeansAgainst": "Leans against",
   "verdict.shortDebunked": "Debunked",
 
   "verdictCard.demo": "Demo result",
   "verdictCard.live": "Live scan",
   "verdictCard.claimSupport": "Evidence support",
+  "verdictCard.indirectSignal": "Indirect signal",
+  "verdictCard.directionalSignal": "Directional signal",
   "verdictCard.noEvidence": "No evidence",
   "verdictCard.verdict": "SciBased verdict",
   "verdictCard.scoreAria": "Claim support score: {score} out of 100",
+  "verdictCard.indirectScoreAria": "Indirect evidence signal: {score} out of 100",
+  "verdictCard.directionalScoreAria":
+    "Directional evidence signal: {score} out of 100",
   "verdictCard.noScoreAria":
     "No evidence score available because no studies were included",
   "verdictCard.papersIncluded": "{count} papers included",
@@ -238,6 +253,9 @@ const en = {
   "evidenceCheck.publicationYears": "Publication years",
   "evidenceCheck.noDatedStudies": "No dated studies",
   "evidenceCheck.querySent": "Query sent to PubMed",
+  "evidenceCheck.redirect": "Outcome redirect",
+  "evidenceCheck.redirectQuery": "Related-outcome query sent to PubMed",
+  "evidenceCheck.redirectCount": "{count} related-outcome studies included",
   "evidenceCheck.nicheFocus":
     "Nutrition and fitness focus: because this claim is in the niche, records from nutrition, exercise, and sports science were prioritised during screening. The verdict still follows the retrieved evidence.",
   "evidenceCheck.translatedNote":
@@ -259,6 +277,7 @@ const en = {
   "study.direct": "Direct test",
   "study.partial": "Proxy / partial outcome",
   "study.indirect": "Indirect evidence",
+  "study.relatedOutcome": "Related outcome",
   "study.sample": "Sample",
   "study.notReported": "Not reported",
   "study.directness": "Directness",
@@ -408,6 +427,11 @@ const es: Record<TranslationKey, string> = {
     "La conclusión práctica y dónde la versión viral la estira.",
   "results.traceabilityNote":
     "Cada punto siguiente está enlazado con los estudios de los que se extrae. Abre un estudio para revisar sus métodos, citas exactas y limitaciones.",
+  "results.redirectTitle": "No hay una prueba directa de la afirmación exacta: ampliamos la búsqueda",
+  "results.redirectBody":
+    "Ningún estudio midió {from} directamente. Buscamos la evidencia más cercana sobre {to}. Puede orientar una hipótesis, pero no verifica ni desmiente la afirmación exacta.",
+  "results.redirectCount": "{count} estudios relacionados incluidos",
+  "results.redirectNone": "Ningún estudio cercano superó la selección.",
   "results.statementsSourced": "{sourced}/{total} puntos enlazados",
   "results.statementSources": "Basado en",
   "results.statementSourcesAria": "Estudios que respaldan esta afirmación",
@@ -445,18 +469,27 @@ const es: Record<TranslationKey, string> = {
   "claimType.other": "Afirmación de salud",
 
   "verdict.verified": "Verificado",
+  "verdict.leansFor": "Se inclina a favor",
   "verdict.context": "Falta contexto",
+  "verdict.leansAgainst": "Se inclina en contra",
   "verdict.debunked": "Desmentido",
   "verdict.shortVerified": "Verificado",
+  "verdict.shortLeansFor": "A favor",
   "verdict.shortContext": "Contexto",
+  "verdict.shortLeansAgainst": "En contra",
   "verdict.shortDebunked": "Desmentido",
 
   "verdictCard.demo": "Resultado de ejemplo",
   "verdictCard.live": "Escaneo en vivo",
   "verdictCard.claimSupport": "Apoyo",
+  "verdictCard.indirectSignal": "Señal indirecta",
+  "verdictCard.directionalSignal": "Señal direccional",
   "verdictCard.noEvidence": "Sin evidencia",
   "verdictCard.verdict": "Veredicto de SciBased",
   "verdictCard.scoreAria": "Puntaje de apoyo a la afirmación: {score} de 100",
+  "verdictCard.indirectScoreAria": "Señal de evidencia indirecta: {score} de 100",
+  "verdictCard.directionalScoreAria":
+    "Señal de evidencia direccional: {score} de 100",
   "verdictCard.noScoreAria":
     "No hay puntaje de evidencia porque no se incluyeron estudios",
   "verdictCard.papersIncluded": "{count} estudios incluidos",
@@ -520,6 +553,9 @@ const es: Record<TranslationKey, string> = {
   "evidenceCheck.publicationYears": "Años de publicación",
   "evidenceCheck.noDatedStudies": "Sin estudios con fecha",
   "evidenceCheck.querySent": "Consulta enviada a PubMed",
+  "evidenceCheck.redirect": "Redirección de resultado",
+  "evidenceCheck.redirectQuery": "Consulta de resultados relacionados enviada a PubMed",
+  "evidenceCheck.redirectCount": "{count} estudios de resultados relacionados incluidos",
   "evidenceCheck.nicheFocus":
     "Enfoque en nutrición y fitness: como esta afirmación pertenece al nicho, los registros de nutrición, ejercicio y ciencias del deporte se priorizaron durante la selección. El veredicto sigue basándose en la evidencia recuperada.",
   "evidenceCheck.translatedNote":
@@ -541,6 +577,7 @@ const es: Record<TranslationKey, string> = {
   "study.direct": "Prueba directa",
   "study.partial": "Proxy / resultado parcial",
   "study.indirect": "Evidencia indirecta",
+  "study.relatedOutcome": "Resultado relacionado",
   "study.sample": "Muestra",
   "study.notReported": "No reportado",
   "study.directness": "Relación directa",
@@ -638,18 +675,22 @@ export function useLanguage(): LanguageContextValue {
 
 export function verdictLabel(
   t: LanguageContextValue["t"],
-  verdict: "verified" | "context" | "debunked",
+  verdict: Verdict,
 ): string {
   if (verdict === "verified") return t("verdict.verified");
+  if (verdict === "leans_for") return t("verdict.leansFor");
+  if (verdict === "leans_against") return t("verdict.leansAgainst");
   if (verdict === "debunked") return t("verdict.debunked");
   return t("verdict.context");
 }
 
 export function verdictShortLabel(
   t: LanguageContextValue["t"],
-  verdict: "verified" | "context" | "debunked",
+  verdict: Verdict,
 ): string {
   if (verdict === "verified") return t("verdict.shortVerified");
+  if (verdict === "leans_for") return t("verdict.shortLeansFor");
+  if (verdict === "leans_against") return t("verdict.shortLeansAgainst");
   if (verdict === "debunked") return t("verdict.shortDebunked");
   return t("verdict.shortContext");
 }

@@ -101,6 +101,18 @@ export function synthesizeResult(
     clearDirectionalCount >= 2 &&
     clearContradictionShare >= 0.75 &&
     overallCertaintyScore >= 1.5;
+  // A directional verdict is weaker than Verified/Debunked but stronger than
+  // "Needs context". It is used when the evidence has a clear direction even
+  // though it does not clear the definitive-verdict gate — including when the
+  // exact outcome was never tested and the signal comes from related evidence.
+  // Low certainty should not force a shrug when the direction is consistent.
+  // The label is "Leans", not "Verified"/"Debunked", and the certainty grade is
+  // still shown next to it. Two independent directional studies are the floor:
+  // a single small trial cannot set the stance on its own.
+  const canLean =
+    studies.length >= 2 &&
+    directionalStudyCount >= 2 &&
+    clearDirectionalCount >= 2;
   const absoluteClaim =
     /\b(dramatically|drastically|massively|hugely|instantly|miracle|cures?|eliminates?|reverses?|guarantees?)\b/i.test(
       claim.normalized,
@@ -123,16 +135,71 @@ export function synthesizeResult(
       (canDebunk && supportShare <= 0.55))
   ) {
     verdict = "debunked";
+  } else if (canLean && supportShare >= 0.58 && supports.length >= 2) {
+    verdict = "leans_for";
+  } else if (canLean && supportShare <= 0.42 && contradicts.length >= 2) {
+    verdict = "leans_against";
   }
 
   const label =
-    verdict === "verified" ? "Verified" : verdict === "debunked" ? "Debunked" : "Needs context";
-  const score = studies.length === 0 ? 50 : Math.round(supportShare * 100);
+    verdict === "verified"
+      ? "Verified"
+      : verdict === "leans_for"
+        ? "Leans in favor"
+        : verdict === "leans_against"
+          ? "Leans against"
+          : verdict === "debunked"
+            ? "Debunked"
+            : "Needs context";
+  // Related-outcome evidence can point in a useful direction, but it must not
+  // produce the same 0–100 confidence signal as a direct test. Compress the
+  // indirect score into a deliberately narrow range around neutral.
+  const score =
+    studies.length === 0
+      ? 50
+      : verdict === "leans_for" || verdict === "leans_against"
+        ? Math.round(20 + supportShare * 60)
+        : directStudyCount > 0
+          ? Math.round(supportShare * 100)
+          : Math.round(20 + supportShare * 60);
+  const scoreBasis =
+    studies.length === 0
+      ? undefined
+      : verdict === "leans_for" || verdict === "leans_against"
+        ? directStudyCount > 0
+          ? ("directional" as const)
+          : ("indirect" as const)
+        : directStudyCount > 0
+          ? ("direct" as const)
+          : ("indirect" as const);
 
+  // When the exact outcome was not tested, the headline result must come from
+  // the related-outcome papers, not from an unrelated partial record.
+  const topPool =
+    coverage.redirect && studies.some((study) => study.redirectedOutcome)
+      ? studies.filter((study) => study.redirectedOutcome)
+      : studies;
+  // The headline quote should explain the verdict, not undercut it. A
+  // "Leans in favor" verdict must not lead with the strongest contradicting
+  // trial just because that trial happened to have the largest weight.
+  const preferredDirection: StudyDirection | null =
+    verdict === "verified" || verdict === "leans_for"
+      ? "supports"
+      : verdict === "debunked" || verdict === "leans_against"
+        ? "contradicts"
+        : null;
+  const directionPool = preferredDirection
+    ? topPool.filter((study) => study.direction === preferredDirection)
+    : topPool;
   const topStudy =
-    [...studies]
+    [...directionPool]
       .filter((study) => study.direction !== "unclear")
-      .sort((a, b) => b.weight - a.weight)[0] ?? studies[0];
+      .sort((a, b) => b.weight - a.weight)[0] ??
+    [...topPool]
+      .filter((study) => study.direction !== "unclear")
+      .sort((a, b) => b.weight - a.weight)[0] ??
+    [...topPool].sort((a, b) => b.weight - a.weight)[0] ??
+    studies[0];
 
   const conclusion = buildConclusion(
     verdict,
@@ -142,6 +209,7 @@ export function synthesizeResult(
     topStudy,
     certainty,
     supportShare,
+    coverage,
   );
   const contextLine = buildContextLine(studies, coverage, certainty, topStudy);
   const breakdown = buildBreakdown(
@@ -153,9 +221,10 @@ export function synthesizeResult(
     topStudy,
     certaintyRationale,
     claim,
+    coverage,
   );
   const caveatStudy = findCaveatStudy(studies);
-  const remember = buildRemember(studies, certainty, caveatStudy);
+  const remember = buildRemember(studies, certainty, caveatStudy, coverage);
   const rememberStudyIds = caveatStudy
     ? [caveatStudy.id]
     : studies.map((study) => study.id);
@@ -165,6 +234,7 @@ export function synthesizeResult(
     verdict,
     label,
     score,
+    scoreBasis,
     evidenceQuality: certainty,
     category: claim.category,
     platform: "Web",
@@ -192,6 +262,7 @@ export function synthesizeResult(
       supportShare,
       overallCertaintyScore,
       verdict,
+      coverage,
     ),
     claimType: claim.claimType,
     isLive: true,
@@ -222,17 +293,65 @@ function buildConclusion(
   topStudy: Study | undefined,
   certainty: Certainty,
   supportShare: number,
+  coverage: SearchCoverage,
 ): string {
   if (studies.length === 0) {
-    return "No directly relevant studies were found for this claim. That is not proof the claim is false — it means the claim needs a more specific, testable formulation.";
+    return coverage.redirect
+      ? `No study measured ${coverage.redirect.from} directly, and the widened search for ${coverage.redirect.to.join(", ")} did not produce a usable study. That is not proof the claim is false — it means the claim needs a more specific, testable formulation.`
+      : "No directly relevant studies were found for this claim. That is not proof the claim is false — it means the claim needs a more specific, testable formulation.";
   }
 
+  const topFindingKind =
+    (verdict === "verified" || verdict === "leans_for") &&
+    topStudy?.direction === "supports"
+      ? "supporting"
+      : (verdict === "debunked" || verdict === "leans_against") &&
+          topStudy?.direction === "contradicts"
+        ? "contradicting"
+        : coverage.redirect
+          ? "related-outcome"
+          : "included";
   const topFinding = topStudy?.finding
-    ? ` The strongest included result: “${truncate(topStudy.finding, 240)}”`
+    ? ` The strongest ${topFindingKind} result: “${truncate(topStudy.finding, 240)}”`
     : "";
   const mixedCount = studies.filter((study) => study.direction === "mixed").length;
   const unclearCount = studies.filter((study) => study.direction === "unclear").length;
   const tally = `${supports.length} supporting, ${contradicts.length} contradicting, ${mixedCount} mixed, ${unclearCount} unclear`;
+  const directCount = studies.filter((study) => study.directness === "direct").length;
+  const leaning =
+    supportShare > 0.58
+      ? "leans toward the claim"
+      : supportShare < 0.42
+        ? "leans against the claim"
+        : "is genuinely mixed";
+
+  if (directCount === 0 && coverage.redirect) {
+    const stance =
+      verdict === "leans_for"
+        ? "leans in favor of the claim"
+        : verdict === "leans_against"
+          ? "leans against the claim"
+          : "is too mixed or too limited for a directional verdict";
+    const signal =
+      verdict === "leans_for" || verdict === "leans_against"
+        ? "That is a directional signal, not a direct test, so it cannot confirm or refute the exact claim."
+        : "That is not enough to confirm or refute the exact claim.";
+    return `No included study tested ${coverage.redirect.from} directly. The search was widened to ${coverage.redirect.to.join(", ")}; the related evidence ${stance}. ${signal}${topFinding}`;
+  }
+
+  if (directCount === 0) {
+    const stance =
+      verdict === "leans_for"
+        ? "leans in favor of the claim"
+        : verdict === "leans_against"
+          ? "leans against the claim"
+          : "is too mixed or too limited for a directional verdict";
+    const signal =
+      verdict === "leans_for" || verdict === "leans_against"
+        ? "This is a directional signal, not a definitive verdict."
+        : "That is not enough for a definitive verdict.";
+    return `No included study tested the exact claim directly. The available evidence ${stance}. ${signal}${topFinding}`;
+  }
 
   if (verdict === "verified") {
     return `Across ${studies.length} included studies (${tally}), the balance of evidence supports the claim as stated, with ${certainty.toLowerCase()} certainty.${topFinding}`;
@@ -242,12 +361,13 @@ function buildConclusion(
     return `Across ${studies.length} included studies (${tally}), the balance of evidence does not support the claim as stated, with ${certainty.toLowerCase()} certainty.${topFinding}`;
   }
 
-  const leaning =
-    supportShare > 0.58
-      ? "leans toward the claim"
-      : supportShare < 0.42
-        ? "leans against the claim"
-        : "is genuinely mixed";
+  if (verdict === "leans_for") {
+    return `Across ${studies.length} included studies (${tally}), the balance of evidence leans in favor of the claim, with ${certainty.toLowerCase()} certainty. This is a directional signal, not a definitive verdict.${topFinding}`;
+  }
+
+  if (verdict === "leans_against") {
+    return `Across ${studies.length} included studies (${tally}), the balance of evidence leans against the claim, with ${certainty.toLowerCase()} certainty. This is a directional signal, not a definitive verdict.${topFinding}`;
+  }
 
   const certaintyText =
     certainty === "High" || certainty === "Moderate"
@@ -268,12 +388,16 @@ function buildContextLine(
   }
 
   const direct = studies.filter((study) => study.directness === "direct").length;
+  const redirectNote =
+    direct === 0 && coverage.redirect
+      ? ` · search widened to ${coverage.redirect.to.slice(0, 2).join(" and ")}`
+      : "";
   const gap =
     topStudy?.limitations && !/not reported/i.test(topStudy.limitations)
       ? ` Main caveat: ${truncate(topStudy.limitations, 150)}`
       : "";
 
-  return `${studies.length} papers included · ${coverage.fullTextsRead} ${coverage.fullTextsRead === 1 ? "full text" : "full texts"} read · ${certainty} certainty · ${direct} directly relevant.${gap}`;
+  return `${studies.length} papers included · ${coverage.fullTextsRead} ${coverage.fullTextsRead === 1 ? "full text" : "full texts"} read · ${certainty} certainty · ${direct} directly relevant${redirectNote}.${gap}`;
 }
 
 function buildBreakdown(
@@ -285,12 +409,17 @@ function buildBreakdown(
   topStudy: Study | undefined,
   certaintyRationale: string,
   claim: ParsedClaim,
+  coverage: SearchCoverage,
 ): BreakdownItem[] {
   if (studies.length === 0) {
     return [
       {
-        title: "The search came up empty",
-        body: `No study passed relevance screening for this exact exposure and outcome. Try naming the exposure, population, and outcome more concretely (for example, “Does creatine affect kidney function in healthy adults?”).`,
+        title: coverage.redirect
+          ? "The search was widened but still came up empty"
+          : "The search came up empty",
+        body: coverage.redirect
+          ? `No direct ${coverage.redirect.from} study passed screening, and the widened search for ${coverage.redirect.to.join(", ")} did not produce a usable related study. Try naming the exposure, population, and outcome more concretely.`
+          : `No study passed relevance screening for this exact exposure and outcome. Try naming the exposure, population, and outcome more concretely (for example, “Does creatine affect kidney function in healthy adults?”).`,
         studyIds: [],
       },
       {
@@ -322,9 +451,12 @@ function buildBreakdown(
     ? ` (${topStudy.authors.split(",")[0]} et al., ${topStudy.year}; ${topStudy.designLabel.toLowerCase()})`
     : "";
 
+  const redirectText = coverage.redirect
+    ? ` The search was widened to ${coverage.redirect.to.join(", ")} after no direct ${coverage.redirect.from} test passed screening.`
+    : "";
   const directnessBody = direct.length
     ? `${direct.length} ${direct.length === 1 ? "study" : "studies"} measured the claim's exposure and outcome directly. ${partial.length} measured a related or proxy outcome, and ${indirect.length} ${indirect.length === 1 ? "was" : "were"} indirect.`
-    : `No study measured the exact claim directly. ${partial.length} measured a related or proxy outcome, and ${indirect.length} ${indirect.length === 1 ? "was" : "were"} indirect. This is a key reason the verdict is cautious.`;
+    : `No study measured the exact claim directly.${redirectText} ${partial.length} measured a related or proxy outcome, and ${indirect.length} ${indirect.length === 1 ? "was" : "were"} indirect. This is a key reason the verdict is cautious.`;
 
   // The certainty statement is grounded in the studies that actually created
   // the uncertainty, not in the whole set by default.
@@ -339,6 +471,23 @@ function buildBreakdown(
       study.certainty === "Very low",
   );
   const certaintyStudies = limitingStudies.length > 0 ? limitingStudies : studies;
+  const relatedStudies = studies.filter((study) => study.redirectedOutcome);
+  const redirectItem: BreakdownItem[] = coverage.redirect
+    ? [
+        {
+          title: "No direct test — the search was widened",
+          body: `No included study measured ${coverage.redirect.from} directly. ${
+            relatedStudies.length > 0
+              ? `${relatedStudies.length} related ${relatedStudies.length === 1 ? "study" : "studies"} were included as evidence on related outcomes such as ${coverage.redirect.to.join(", ")}.`
+              : `The widened search did not produce a related study that passed screening.`
+          } The closest evidence can inform a hypothesis, but it cannot verify or debunk the exact claim.`,
+          studyIds:
+            relatedStudies.length > 0
+              ? relatedStudies.map((study) => study.id)
+              : studies.map((study) => study.id),
+        },
+      ]
+    : [];
 
   return [
     {
@@ -348,6 +497,7 @@ function buildBreakdown(
         : "No individual study could be identified as the strongest source.",
       studyIds: topStudy ? [topStudy.id] : [],
     },
+    ...redirectItem,
     {
       title: "How the evidence lines up",
       body: `The scan included ${studies.length} ${studies.length === 1 ? "study" : "studies"}: ${designSummary}. ${supports.length} ${supports.length === 1 ? "was" : "were"} classified as supporting the claim, ${contradicts.length} as contradicting it, ${mixed.length} as mixed, and ${unclear.length} as unclear. This is a balance of evidence, not a vote count — study design, sample size, and directness change the weight of each result.`,
@@ -381,12 +531,20 @@ function buildRemember(
   studies: Study[],
   certainty: Certainty,
   caveatStudy: Study | undefined,
+  coverage: SearchCoverage,
 ): string {
   if (studies.length === 0) {
-    return "No evidence is not the same as evidence of no effect. Reformulate the claim with a specific exposure, population, and outcome before drawing a conclusion.";
+    return coverage.redirect
+      ? `No direct ${coverage.redirect.from} evidence and no usable related-outcome study was found. That is not proof the claim is false; reformulate the exposure, population, and outcome before drawing a conclusion.`
+      : "No evidence is not the same as evidence of no effect. Reformulate the claim with a specific exposure, population, and outcome before drawing a conclusion.";
   }
 
-  return `${caveatStudy ? `A key caveat from the included research: “${truncate(caveatStudy.limitations, 210)}” ` : ""}Certainty is ${certainty.toLowerCase()}. Automated extraction can misclassify a result — open the quoted sections and papers before acting on this verdict.`;
+  const redirectCaveat =
+    coverage.redirect && studies.every((study) => study.directness !== "direct")
+      ? `No direct ${coverage.redirect.from} test was found. The related-outcome studies can guide a hypothesis, but they cannot confirm the exact claim. `
+      : "";
+
+  return `${redirectCaveat}${caveatStudy ? `A key caveat from the included research: “${truncate(caveatStudy.limitations, 210)}” ` : ""}Certainty is ${certainty.toLowerCase()}. Automated extraction can misclassify a result — open the quoted sections and papers before acting on this verdict.`;
 }
 
 function buildMethodology(coverage: SearchCoverage, studies: Study[]): string[] {
@@ -395,6 +553,11 @@ function buildMethodology(coverage: SearchCoverage, studies: Study[]): string[] 
     `Screened ${coverage.recordsScreened} records and included the ${studies.length} most relevant studies across systematic reviews, trials, observational studies, and case reports.`,
     `Read abstracts for every included study and full text for ${coverage.fullTextsRead} legally open-access papers through Europe PMC. Results, methods, and limitations were extracted — not just the authors' conclusion.`,
     "Graded each study on design, sample size, directness, consistency, and risk of bias. Journal impact factor was not used as a proxy for quality.",
+    ...(coverage.redirect
+      ? [
+          `No direct ${coverage.redirect.from} study passed screening. The search was widened to ${coverage.redirect.to.join(", ")} using: “${coverage.redirect.query}”. Related-outcome studies are labelled and cannot produce a definitive verdict.`,
+        ]
+      : []),
     "Linked each plain-language synthesis statement to the included studies it draws from, so the reasoning can be audited statement by statement.",
     "Paywalled papers were assessed from their abstracts only. No Sci-Hub or other unauthorized full-text source was used.",
     "This is a structured automated evidence scan, not a registered systematic review. It cannot rule out publication bias or errors in the primary literature.",
@@ -410,19 +573,29 @@ function buildRationale(
   supportShare: number,
   certaintyScore: number,
   verdict: Verdict,
+  coverage: SearchCoverage,
 ): string {
   if (studies.length === 0) {
-    return "No studies were available to weigh, so the result is Needs context rather than a fabricated verdict.";
+    return coverage.redirect
+      ? `No direct ${coverage.redirect.from} study or usable related-outcome study was available to weigh, so the result is Needs context rather than a fabricated verdict.`
+      : "No studies were available to weigh, so the result is Needs context rather than a fabricated verdict.";
   }
 
+  const directCount = studies.filter((study) => study.directness === "direct").length;
   const weightLine = `Weighted support: ${Math.round(supportShare * 100)}% (${supports.length} supporting, ${contradicts.length} contradicting, ${mixed.length} mixed, ${unclear.length} unclear).`;
   const certaintyLine = `Aggregate certainty score: ${certaintyScore.toFixed(1)}/4.`;
+  const redirectLine =
+    coverage.redirect && directCount === 0
+      ? ` No direct ${coverage.redirect.from} test was available; the search was widened to ${coverage.redirect.to.join(", ")}, so the score is an indirect signal only.`
+      : "";
   const verdictLine =
     verdict === "context"
       ? "A definitive verdict requires at least two independent studies, at least one direct test, and sufficient certainty."
-      : "The verdict threshold was met by both the direction of the evidence and the certainty grade.";
+      : verdict === "leans_for" || verdict === "leans_against"
+        ? "The evidence has a clear direction, but the definitive-verdict threshold was not met; the result is a directional signal."
+        : "The verdict threshold was met by both the direction of the evidence and the certainty grade.";
 
-  return `${weightLine} ${certaintyLine} ${verdictLine}`;
+  return `${weightLine} ${certaintyLine}${redirectLine} ${verdictLine}`;
 }
 
 function computeOverallCertainty(

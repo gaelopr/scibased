@@ -66,6 +66,12 @@ export const SYNONYM_GROUPS: Record<string, string[]> = {
   protein: ["protein", "whey", "casein", "dietary protein", "protein supplementation", "protein intake"],
   hypertrophy: ["hypertrophy", "muscle growth", "muscle mass", "muscle size", "cross-sectional area", "muscle protein synthesis", "lean mass"],
   strength: ["strength", "muscle strength", "maximal strength", "one-repetition maximum", "1rm"],
+  bench_press: ["bench press", "bench-press", "chest press", "bench press 1rm", "bench press one-repetition maximum"],
+  overhead_press: ["overhead press", "military press", "shoulder press", "strict press"],
+  squat: ["squat", "back squat", "barbell squat", "front squat"],
+  deadlift: ["deadlift", "dead lift", "conventional deadlift"],
+  vertical_jump: ["vertical jump", "jump height", "jump performance", "countermovement jump"],
+  endurance: ["endurance performance", "aerobic capacity", "vo2max", "vo2 max", "time trial", "time-trial performance"],
   resistance_training: ["resistance training", "strength training", "weight training", "resistance exercise", "weightlifting", "weight lifting"],
   training_failure: ["training to failure", "repetition failure", "muscular failure", "failure training"],
   recovery: ["recovery", "post-exercise recovery", "muscle soreness", "doms"],
@@ -93,6 +99,29 @@ export const SYNONYM_GROUPS: Record<string, string[]> = {
   covid: ["covid-19", "sars-cov-2", "coronavirus"],
   fasting: ["fasting", "intermittent fasting", "calorie restriction"],
   keto: ["keto", "ketogenic", "low-carb"],
+  carnivore_diet: [
+    "carnivore diet",
+    "carnivorous diet",
+    "meat-only diet",
+    "meat only diet",
+    "animal-based diet",
+    "zero-carb diet",
+    "zero carb diet",
+    "meat",
+  ],
+  health: [
+    "health",
+    "cardiovascular disease",
+    "all-cause mortality",
+    "LDL cholesterol",
+    "nutrient adequacy",
+    "nutritional adequacy",
+    "healthy",
+    "metabolic health",
+    "diet quality",
+    "nutrient deficiency",
+    "risk factors",
+  ],
   probiotic: ["probiotic", "probiotics", "microbiome", "gut microbiota"],
   collagen: ["collagen", "collagen peptides"],
   melatonin: ["melatonin"],
@@ -102,12 +131,25 @@ export const SYNONYM_GROUPS: Record<string, string[]> = {
 
 /** Multi-word concepts need to be matched before individual tokens. */
 export const MULTIWORD_CONCEPTS: Array<{ pattern: RegExp; key: string }> = [
+  // Diet patterns must be matched before their individual words. "Carnivore"
+  // alone also describes animal ecology, so the phrase is the safer query.
+  { pattern: /\b(carnivore diet|carnivorous diet|meat[- ]only diet|animal[- ]based diet|zero[- ]carb(?:ohydrate)? diet)\b/i, key: "carnivore_diet" },
+  // A broad "is it healthy?" claim still needs an outcome concept; otherwise
+  // the query degenerates into a single-word search.
+  { pattern: /\b(healthy|health|health outcomes?|long-term health|human health)\b/i, key: "health" },
   // Fitness-specific concepts must be matched before generic words such as
   // "water" or "weight" can consume their tokens.
   { pattern: /\b(muscle growth|muscle hypertrophy|muscle mass|muscle size|muscle gain|build muscle|gain muscle)\b/i, key: "hypertrophy" },
   { pattern: /\b(muscle soreness|muscle recovery|post-exercise recovery)\b/i, key: "recovery" },
   { pattern: /\b(resistance training|strength training|weight training|weightlifting|weight lifting)\b/i, key: "resistance_training" },
   { pattern: /\b(training to failure|repetition failure|muscular failure|failure training)\b/i, key: "training_failure" },
+  { pattern: /\b(bench press|bench-press|chest press)\b/i, key: "bench_press" },
+  { pattern: /\b(overhead press|military press|shoulder press|strict press)\b/i, key: "overhead_press" },
+  { pattern: /\b(back squat|barbell squat|front squat|squat)\b/i, key: "squat" },
+  { pattern: /\b(deadlift|dead lift|conventional deadlift)\b/i, key: "deadlift" },
+  { pattern: /\b(vertical jump|jump height|jump performance|countermovement jump)\b/i, key: "vertical_jump" },
+  { pattern: /\b(maximal strength|muscle strength|one-repetition maximum|1rm|upper-body strength|upper body strength|lower-body strength|lower body strength)\b/i, key: "strength" },
+  { pattern: /\b(endurance performance|aerobic capacity|vo2max|vo2 max|time trial|time-trial performance)\b/i, key: "endurance" },
   { pattern: /\b(protein intake|protein supplementation|dietary protein|whey protein)\b/i, key: "protein" },
   { pattern: /\b(caloric deficit|calorie deficit|energy deficit)\b/i, key: "caloric_deficit" },
   { pattern: /\b(caloric surplus|calorie surplus|energy surplus)\b/i, key: "bulking" },

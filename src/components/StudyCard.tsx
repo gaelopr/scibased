@@ -7,6 +7,7 @@ import {
   FlaskConical,
   Microscope,
   Quote,
+  Route,
   ShieldAlert,
   Target,
   Unlock,
@@ -164,6 +165,12 @@ export default function StudyCard({ study, index }: StudyCardProps) {
           <AccessIcon className="h-2.5 w-2.5" strokeWidth={2.3} aria-hidden="true" />
           {accessLabels[study.access]}
         </span>
+        {study.redirectedOutcome && (
+          <span className="inline-flex items-center gap-1 rounded-md bg-caution-soft px-2 py-1 text-[10px] font-medium text-caution-text ring-1 ring-caution-line">
+            <Route className="h-2.5 w-2.5" strokeWidth={2.3} aria-hidden="true" />
+            {t("study.relatedOutcome")}: {study.redirectedOutcome}
+          </span>
+        )}
       </div>
 
       <div className="mt-4 rounded-xl border border-line bg-surface-muted px-4 py-3.5">
@@ -177,6 +184,11 @@ export default function StudyCard({ study, index }: StudyCardProps) {
         <p lang="en" className="mt-1.5 text-[11px] leading-[1.65] text-subtle">
           {study.directionRationale}
         </p>
+        {study.redirectNote && (
+          <p lang="en" className="mt-1.5 rounded-lg bg-caution-soft/70 px-2.5 py-2 text-[10.5px] leading-[1.6] text-caution-text">
+            {study.redirectNote}
+          </p>
+        )}
       </div>
 
       <div className="mt-3 grid grid-cols-3 gap-2">

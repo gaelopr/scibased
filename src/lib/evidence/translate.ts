@@ -24,7 +24,7 @@ const SPANISH_MARKERS = new Set(
   gimnasio entrenamiento fuerza hipertrofia musculo musculos rutina series repeticiones
   sentadilla peso muerto cardio correr recuperacion agujetas grasa calorias deficit superavit
   suplemento suplementos aminoacidos electrolitos hidratacion nutricion alimentacion rendimiento
-  atleta deportista
+  atleta deportista carnivora carnívora
   suefio sueno sueiio rinon rinones dana danan`
     .split(/\s+/)
     .filter(Boolean),
@@ -40,12 +40,17 @@ const STRONG_SPANISH_MARKERS = new Set(
   fuerza sentadilla sentadillas agujetas suplemento suplementos recuperacion recuperación
   repeticiones rutina rendimiento nutricion nutrición alimentacion alimentación
   musculo músculo musculos músculos grasa electrolitos hidratacion hidratación
-  aminoacidos aminoácidos calorias calorías superavit`
+  aminoacidos aminoácidos calorias calorías superavit carnivora carnívora`
     .split(/\s+/)
     .filter(Boolean),
 );
 
 const PHRASES: Array<[string, string]> = [
+  ["dieta carnívora", "carnivore diet"],
+  ["dieta carnivora", "carnivore diet"],
+  ["dieta de solo carne", "meat-only diet"],
+  ["dieta basada en animales", "animal-based diet"],
+  ["dieta basada en carne", "animal-based diet"],
   ["inmersión en agua fría", "cold water immersion"],
   ["inmersion en agua fria", "cold water immersion"],
   ["baños de hielo", "ice baths"],
@@ -291,6 +296,10 @@ const WORDS: Record<string, string> = {
   tabaco: "tobacco",
   vapeo: "vaping",
   dieta: "diet",
+  carnívora: "carnivore",
+  carnivora: "carnivore",
+  carnívoro: "carnivore",
+  carnivoro: "carnivore",
   ayuno: "fasting",
   intermitente: "intermittent",
   proteína: "protein",

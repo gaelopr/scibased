@@ -212,6 +212,13 @@ export function escapeRegExp(value: string): string {
 /** Approximate sentence splitting that is resilient to common medical abbreviations. */
 export function splitSentences(text: string): string[] {
   const protectedText = text
+    // PubMed abstracts sometimes concatenate a section heading directly to
+    // the next sentence ("performed.ResultsThe results..."). Break those
+    // headings before sentence splitting so the headline quote is not a run-on.
+    .replace(
+      /\b(Results|Conclusion|Conclusions|Methods|Background|Objectives?|Discussion|Introduction)(?=[A-Z])/g,
+      "$1. ",
+    )
     .replace(/\b(e\.g|i\.e|vs|et al|Dr|Prof|approx|ca|no)\./gi, "$1<DOT>")
     .replace(/(\b[A-Z])\./g, "$1<DOT>")
     .replace(/(\d)\.(\d)/g, "$1<DOT>$2");

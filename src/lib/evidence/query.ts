@@ -15,6 +15,8 @@ export interface Concept {
   key: string;
   terms: string[];
   score: number;
+  /** Character offset of the first mention, used to infer exposure vs outcome. */
+  position?: number;
 }
 
 export interface ParsedClaim {
@@ -22,6 +24,10 @@ export interface ParsedClaim {
   normalized: string;
   claimType: ClaimType;
   concepts: Concept[];
+  /** The exposure/intervention concept, when one can be identified. */
+  intervention?: Concept;
+  /** The outcome concepts, excluding the intervention. */
+  outcomes?: Concept[];
   keywords: string[];
   pubmedQuery: string;
   broadPubMedQuery: string;
@@ -43,6 +49,8 @@ export function parseClaim(claim: string): ParsedClaim {
   const normalized = normalizeClaim(claim);
   const claimType = detectClaimType(normalized);
   const concepts = extractConcepts(normalized, claimType);
+  const intervention = pickInterventionConcept(concepts);
+  const outcomes = concepts.filter((concept) => concept.key !== intervention?.key);
   const keywords = unique(concepts.flatMap((concept) => concept.terms));
   const domain = detectEvidenceDomain(normalized);
 
@@ -51,6 +59,8 @@ export function parseClaim(claim: string): ParsedClaim {
     normalized,
     claimType,
     concepts,
+    intervention,
+    outcomes,
     keywords,
     pubmedQuery: buildPubMedQuery(concepts),
     broadPubMedQuery: buildBroadPubMedQuery(concepts),
@@ -60,6 +70,96 @@ export function parseClaim(claim: string): ParsedClaim {
     category: inferCategory(normalized, concepts, domain),
     domain,
   };
+}
+
+/**
+ * Known exposures are preferred over outcomes when a claim mentions both.
+ * This matters for outcome-first phrasing such as "bench press: does creatine
+ * help?" and keeps directness checks anchored to the exposure.
+ */
+const STRONG_INTERVENTION_KEYS = new Set([
+  "creatine",
+  "protein",
+  "caffeine",
+  "magnesium",
+  "omega3",
+  "vitamin_d",
+  "collagen",
+  "melatonin",
+  "turmeric",
+  "ashwagandha",
+  "probiotic",
+  "cold_plunge",
+  "cold_water",
+  "fasting",
+  "keto",
+  "carnivore_diet",
+  "carbohydrate",
+  "fiber",
+  "sugar",
+  "calories",
+  "caloric_deficit",
+  "bulking",
+]);
+
+const EXERCISE_INTERVENTION_KEYS = new Set([
+  "resistance_training",
+  "exercise",
+  "gym",
+  "cardio",
+  "running",
+  "fasted_cardio",
+]);
+
+const OUTCOME_KEYS = new Set([
+  "safe",
+  "health",
+  "kidney",
+  "liver",
+  "gut",
+  "bloating",
+  "digestion",
+  "sleep",
+  "blood_pressure",
+  "heart",
+  "brain",
+  "depression",
+  "anxiety",
+  "inflammation",
+  "cholesterol",
+  "diabetes",
+  "cancer",
+  "immune",
+  "strength",
+  "hypertrophy",
+  "bench_press",
+  "overhead_press",
+  "squat",
+  "deadlift",
+  "vertical_jump",
+  "endurance",
+  "body_composition",
+  "weight_loss",
+  "recovery",
+  "training_failure",
+]);
+
+function pickInterventionConcept(concepts: Concept[]): Concept | undefined {
+  if (concepts.length === 0) return undefined;
+
+  const byPosition = (a: Concept, b: Concept) =>
+    (a.position ?? Number.MAX_SAFE_INTEGER) - (b.position ?? Number.MAX_SAFE_INTEGER);
+
+  const strong = concepts.filter((concept) => STRONG_INTERVENTION_KEYS.has(concept.key));
+  if (strong.length > 0) return [...strong].sort(byPosition)[0];
+
+  const exercise = concepts.filter((concept) => EXERCISE_INTERVENTION_KEYS.has(concept.key));
+  if (exercise.length > 0) return [...exercise].sort(byPosition)[0];
+
+  const nonOutcome = concepts.filter((concept) => !OUTCOME_KEYS.has(concept.key));
+  if (nonOutcome.length > 0) return [...nonOutcome].sort(byPosition)[0];
+
+  return [...concepts].sort(byPosition)[0];
 }
 
 export function normalizeClaim(claim: string): string {
@@ -134,6 +234,7 @@ function extractConcepts(claim: string, claimType: ClaimType): Concept[] {
       key: entry.key,
       terms: unique(terms),
       score: 6,
+      position: lower.indexOf(match[0].toLowerCase()),
     });
     for (const word of matchedWords) consumed.add(word);
   }
@@ -160,6 +261,7 @@ function extractConcepts(claim: string, claimType: ClaimType): Concept[] {
         key: canonical,
         terms: unique([canonical, ...group]),
         score: 4 + Math.min(2, index / 8),
+        position: lower.indexOf(token),
       });
       return;
     }
@@ -170,6 +272,7 @@ function extractConcepts(claim: string, claimType: ClaimType): Concept[] {
       key: canonical,
       terms: [canonical],
       score: 1.5 + Math.min(1.5, index / 10),
+      position: lower.indexOf(token),
     });
   });
 
@@ -191,25 +294,38 @@ function extractConcepts(claim: string, claimType: ClaimType): Concept[] {
       key: "safe",
       terms: SYNONYM_GROUPS.safe,
       score: 5,
+      position: lower.length,
     });
   }
 
   // 4. Keep the query focused. Three OR-groups is a good precision/recall
-  // balance for a claim-length query.
-  const ranked = concepts
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3)
-    .map((concept) => ({
-      ...concept,
-      terms: unique(concept.terms.map(normalizeTerm).filter(Boolean)).slice(0, 5),
-    }));
+  // balance for a claim-length query, but never drop the exposure just because
+  // a claim names several outcomes. For example, "yoga, bench press, squat,
+  // and strength" must not become a bench-press-and-squat query with no yoga.
+  const topConcepts = [...concepts].sort((a, b) => b.score - a.score).slice(0, 3);
+  const intervention = pickInterventionConcept(concepts);
+  if (
+    intervention &&
+    !topConcepts.some((concept) => concept.key === intervention.key)
+  ) {
+    topConcepts[topConcepts.length - 1] = intervention;
+  }
+  const ranked = topConcepts.map((concept) => ({
+    ...concept,
+    terms: unique(concept.terms.map(normalizeTerm).filter(Boolean)).slice(0, 5),
+  }));
 
   // If the claim was too short to yield concepts, fall back to content words.
   if (ranked.length === 0) {
     const fallback = tokenize(lower)
       .filter((token) => !STOPWORDS.has(token) && token.length >= 3)
       .slice(0, 3)
-      .map((token) => ({ key: token, terms: [token], score: 1 }));
+      .map((token) => ({
+        key: token,
+        terms: [token],
+        score: 1,
+        position: lower.indexOf(token),
+      }));
     return fallback;
   }
 
@@ -233,11 +349,19 @@ export function buildPubMedQuery(concepts: Concept[]): string {
 function buildBroadPubMedQuery(concepts: Concept[]): string {
   if (concepts.length === 0) return "";
 
-  // Drop the weakest concept rather than OR-ing every concept together. An
-  // OR fallback for a three-concept claim can return hundreds of thousands of
-  // records that match only the outcome, which then drown the intervention.
+  // Drop the weakest outcome rather than the exposure. An OR fallback for a
+  // three-concept claim can return hundreds of thousands of records that match
+  // only the outcome, which then drown the intervention.
+  const intervention = pickInterventionConcept(concepts);
+  const outcomes = concepts.filter(
+    (concept) => concept.key !== intervention?.key,
+  );
   const selected =
-    concepts.length >= 3 ? concepts.slice(0, concepts.length - 1) : concepts;
+    concepts.length >= 3 && outcomes.length > 1
+      ? [intervention, ...outcomes.slice(0, outcomes.length - 1)].filter(
+          (concept): concept is Concept => Boolean(concept),
+        )
+      : concepts;
   const groups = selected.map((concept) => {
     const terms = concept.terms
       .slice(0, 4)
@@ -268,7 +392,13 @@ function inferCategory(
     keys.has("hypertrophy") ||
     keys.has("strength") ||
     keys.has("resistance_training") ||
-    keys.has("training_failure")
+    keys.has("training_failure") ||
+    keys.has("bench_press") ||
+    keys.has("overhead_press") ||
+    keys.has("squat") ||
+    keys.has("deadlift") ||
+    keys.has("vertical_jump") ||
+    keys.has("endurance")
   ) {
     return "Muscle & strength";
   }

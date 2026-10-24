@@ -1,4 +1,10 @@
-import { ShieldAlert, ShieldCheck, ShieldX } from "lucide-react";
+import {
+  ShieldAlert,
+  ShieldCheck,
+  ShieldX,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 import { useLanguage, verdictLabel } from "../i18n";
 import type { Verdict } from "../types";
 import { verdictTheme } from "../lib/verdictTheme";
@@ -10,11 +16,13 @@ interface VerdictBadgeProps {
   className?: string;
 }
 
-const icons = {
+const icons: Record<Verdict, typeof ShieldCheck> = {
   verified: ShieldCheck,
+  leans_for: TrendingUp,
   context: ShieldAlert,
+  leans_against: TrendingDown,
   debunked: ShieldX,
-} as const;
+};
 
 export default function VerdictBadge({
   verdict,

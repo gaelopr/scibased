@@ -21,7 +21,14 @@ export default function VerdictCard({ result }: VerdictCardProps) {
   const circumference = 2 * Math.PI * radius;
   const evidenceCount = result.studies?.length ?? result.papers.length;
   const hasEvidence = !result.isLive || evidenceCount > 0;
+  const scoreBasis = result.scoreBasis;
   const dash = hasEvidence ? (result.score / 100) * circumference : 0;
+  const scoreLabel =
+    scoreBasis === "indirect"
+      ? t("verdictCard.indirectSignal")
+      : scoreBasis === "directional"
+        ? t("verdictCard.directionalSignal")
+        : t("verdictCard.claimSupport");
   const claimTypeLabels: Record<ClaimType, string> = {
     safety: t("claimType.safety"),
     efficacy: t("claimType.efficacy"),
@@ -39,7 +46,7 @@ export default function VerdictCard({ result }: VerdictCardProps) {
       <div className={`h-1 w-full ${theme.dot}`} aria-hidden="true" />
 
       <div className="p-5 sm:p-7">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <VerdictBadge verdict={result.verdict} />
             <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-subtle">
@@ -48,11 +55,17 @@ export default function VerdictCard({ result }: VerdictCardProps) {
           </div>
 
           <div
-            className="flex shrink-0 flex-col items-center"
+            className="ml-auto flex shrink-0 flex-col items-center"
             role="img"
             aria-label={
               hasEvidence
-                ? t("verdictCard.scoreAria", { score: result.score })
+                ? scoreBasis === "indirect"
+                  ? t("verdictCard.indirectScoreAria", { score: result.score })
+                  : scoreBasis === "directional"
+                    ? t("verdictCard.directionalScoreAria", {
+                        score: result.score,
+                      })
+                    : t("verdictCard.scoreAria", { score: result.score })
                 : t("verdictCard.noScoreAria")
             }
           >
@@ -87,7 +100,7 @@ export default function VerdictCard({ result }: VerdictCardProps) {
                       <span className="ml-0.5 text-[10px] font-medium text-faint">/100</span>
                     </span>
                     <span className="mt-1 max-w-[68px] text-center text-[8.5px] font-medium uppercase leading-3 tracking-[0.06em] text-faint">
-                      {t("verdictCard.claimSupport")}
+                      {scoreLabel}
                     </span>
                   </>
                 ) : (

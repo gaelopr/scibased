@@ -26,6 +26,10 @@ export interface RawArticle {
   citedByCount?: number;
   openAccessUrl?: string;
   isOpenAccess?: boolean;
+  /** Set when the article came from an outcome-redirect search. */
+  redirectedOutcome?: string;
+  /** Plain-language explanation attached by the redirect planner. */
+  redirectNote?: string;
 }
 
 export interface PubMedSearchResult {

@@ -1,4 +1,9 @@
-export type Verdict = "verified" | "context" | "debunked";
+export type Verdict =
+  | "verified"
+  | "leans_for"
+  | "context"
+  | "leans_against"
+  | "debunked";
 
 export type MockKey = "creatine" | "protein" | "coldPlunge";
 
@@ -72,6 +77,34 @@ export interface Study {
   riskOfBias: string;
   /** Relative weight used in the balance-of-evidence calculation. */
   weight: number;
+  /**
+   * Set when this study was retrieved by widening a specific outcome (for
+   * example, bench press) to a related construct (maximal strength). It is
+   * always treated as indirect evidence for the original claim.
+   */
+  redirectedOutcome?: string;
+  /** Plain-language explanation of why the tested outcome is only related. */
+  redirectNote?: string;
+}
+
+/**
+ * A record of an automatic outcome redirect. The app never presents related
+ * outcomes as if they tested the exact claim; this object carries the audit
+ * trail into the UI and the methodology.
+ */
+export interface SearchRedirect {
+  /** The specific outcome the user asked about, e.g. "bench press". */
+  from: string;
+  /** Broader outcomes used to find adjacent evidence. */
+  to: string[];
+  /** The query sent to PubMed for the related-outcome search. */
+  query: string;
+  /** Direct studies found before the search was widened. */
+  directStudiesFound: number;
+  /** Related-outcome studies included in the final synthesis. */
+  relatedStudiesFound: number;
+  /** English explanation shown with the search-coverage details. */
+  explanation: string;
 }
 
 export interface SearchCoverage {
@@ -89,6 +122,8 @@ export interface SearchCoverage {
   translatedFrom?: "Spanish";
   /** Set when the scan prioritised nutrition / fitness records. */
   searchFocus?: "nutrition-fitness";
+  /** Set when no direct test was available and the search was widened. */
+  redirect?: SearchRedirect;
 }
 
 export type AnalysisStep =
@@ -140,6 +175,12 @@ export interface VerdictResult {
   label: string;
   /** 0–100. How strongly the available evidence supports the claim as stated. */
   score: number;
+  /**
+   * Whether the score is based on a direct test of the claim or only on
+   * related-outcome evidence. The UI must not present an indirect signal as a
+   * direct verdict.
+   */
+  scoreBasis?: "direct" | "indirect" | "directional";
   evidenceQuality: "High" | "Moderate" | "Low to moderate" | "Low" | "Very low";
   category: string;
   platform: "TikTok" | "Instagram" | "X" | "Web";

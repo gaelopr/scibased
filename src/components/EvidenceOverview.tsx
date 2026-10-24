@@ -233,6 +233,33 @@ export default function EvidenceOverview({ result }: EvidenceOverviewProps) {
             )}
           </div>
 
+          {coverage.redirect && (
+            <div className="rounded-xl border border-caution-line bg-caution-soft/60 px-3.5 py-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-caution-text">
+                {t("evidenceCheck.redirect")}
+              </p>
+              <p lang="en" className="mt-1.5 text-[11px] leading-[1.7] text-muted">
+                {coverage.redirect.explanation}
+              </p>
+              <p className="mt-2 text-[10px] font-semibold uppercase tracking-[0.08em] text-subtle">
+                {t("evidenceCheck.redirectQuery")}
+              </p>
+              <code
+                lang="en"
+                className="mt-1.5 block break-words rounded-lg border border-line bg-surface px-3 py-2.5 font-mono text-[10px] leading-[1.65] text-muted"
+              >
+                {coverage.redirect.query}
+              </code>
+              <p className="mt-2 text-[10.5px] leading-4 text-caution-text">
+                {coverage.redirect.relatedStudiesFound > 0
+                  ? t("evidenceCheck.redirectCount", {
+                      count: coverage.redirect.relatedStudiesFound,
+                    })
+                  : t("results.redirectNone")}
+              </p>
+            </div>
+          )}
+
           {result.methodology && result.methodology.length > 0 && (
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-subtle">

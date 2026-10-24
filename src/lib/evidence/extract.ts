@@ -36,6 +36,7 @@ export function buildStudy(
   article: RawArticle,
   fullText: FullText | null,
   claim: ParsedClaim,
+  options: { outcomeFocused?: boolean } = {},
 ): Study {
   const design = detectDesign(article, fullText);
   const designLabel = DESIGN_LABELS[design];
@@ -76,14 +77,21 @@ export function buildStudy(
     claim,
     article.title,
     abstractText,
+    options,
   );
 
-  const directness = assessDirectness(
+  let directness = assessDirectness(
     claim,
     article,
     fullText,
     [...resultSentences, ...conclusionSentences].join(" "),
   );
+  // A redirected paper was selected because it measures a related outcome.
+  // That makes it a proxy for the original claim, not a direct test and not a
+  // completely unrelated record.
+  if (article.redirectedOutcome && directness === "indirect") {
+    directness = "partial";
+  }
 
   const sampleSize = detectSampleSize(
     [abstractText, methodsText, fullText?.resultsText ?? ""].join(" "),
@@ -181,6 +189,8 @@ export function buildStudy(
     citedByCount: article.citedByCount,
     riskOfBias: describeRiskOfBias(design, reportedSampleSize, limitationsText),
     weight: DESIGN_WEIGHTS[design],
+    redirectedOutcome: article.redirectedOutcome,
+    redirectNote: article.redirectNote,
   };
 }
 
@@ -321,11 +331,34 @@ export function detectPopulation(text: string, sampleSize?: number): string | un
   return undefined;
 }
 
+/**
+ * Split a result sentence at contrastive conjunctions. A sentence can report a
+ * positive effect on the outcome and a null effect on an unrelated outcome;
+ * treating the whole sentence as one polarity mislabels the result.
+ */
+function splitContrastClauses(text: string): string[] {
+  return text
+    .split(
+      /\s*;\s*|,\s*(?:but|however|whereas|while|although|yet)\s+|\s+(?:but|however|whereas|although|yet)\s+/i,
+    )
+    .map((clause) => {
+      const cleaned = clause
+        .replace(/^(?:but|however|whereas|although|yet)[,\s]+/i, "")
+        .replace(/^that\s+/i, "")
+        .trim();
+      return cleaned
+        ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1)
+        : cleaned;
+    })
+    .filter(Boolean);
+}
+
 export function classifyDirection(
   sentences: Array<{ text: string; section: string }>,
   claim: ParsedClaim,
   title: string,
   abstract: string,
+  options: { outcomeFocused?: boolean } = {},
 ): {
   direction: StudyDirection;
   rationale: string;
@@ -334,7 +367,28 @@ export function classifyDirection(
 } {
   const claimType = claim.claimType;
   const claimNegated = claimType === "efficacy" && isNegatedEfficacyClaim(claim.normalized);
-  const classified: ClassifiedSentence[] = sentences.map(({ text, section }) => {
+  const intervention = claim.intervention ?? claim.concepts[0];
+  const outcomes = claim.outcomes?.length
+    ? claim.outcomes
+    : claim.concepts.slice(1);
+  const outcomeTerms = outcomes.flatMap((concept) => concept.terms);
+
+  // For a redirected paper, only clauses that name the related outcome should
+  // decide its direction. Otherwise a null result on an unrelated endpoint
+  // (e.g. endurance) can incorrectly override a positive strength result.
+  const sourceSentences = options.outcomeFocused
+    ? sentences.flatMap(({ text, section }) => {
+        const clauses = splitContrastClauses(text);
+        const relevant = clauses.filter((clause) =>
+          outcomeTerms.some((term) =>
+            clause.toLowerCase().includes(term.toLowerCase()),
+          ),
+        );
+        return relevant.map((clause) => ({ text: clause, section }));
+      })
+    : sentences;
+
+  const classified: ClassifiedSentence[] = sourceSentences.map(({ text, section }) => {
     const normalized = text.toLowerCase();
     if (isNonEvidenceSentence(text)) {
       return { text, section, support: false, contradict: false, mixed: false };
@@ -446,8 +500,8 @@ export function classifyDirection(
   const strongest = pickStrongestSentence(
     classified,
     direction,
-    claim.concepts[0]?.terms ?? [],
-    claim.concepts.slice(1).flatMap((concept) => concept.terms),
+    intervention?.terms ?? [],
+    outcomeTerms,
   );
 
   const rationale = buildDirectionRationale(
@@ -517,6 +571,15 @@ function pickStrongestSentence(
     if (/\b(recommend|recommended|should be|need to|monitoring is|caution is)\b/i.test(lower)) {
       score -= 1.5;
     }
+    // A GRADE/limitations sentence is important context, but it is not the
+    // study's result and should not become the headline finding.
+    if (
+      /\b(low[- ]quality|very low quality|downgrad(?:ed|ing)|imprecision|indirectness|risk of bias|heterogeneity|publication bias|grade)\b/i.test(
+        lower,
+      )
+    ) {
+      score -= 6;
+    }
 
     const digitShare = (item.text.match(/\d/g) ?? []).length / item.text.length;
     if (digitShare > 0.15) score -= 2;
@@ -566,8 +629,40 @@ function assessDirectness(
   const design = detectDesign(article, fullText);
   if (design === "animal" || design === "in-vitro") return "indirect";
 
-  const interventionTerms = claim.concepts[0]?.terms ?? [];
-  const outcomeTerms = claim.concepts.slice(1).flatMap((concept) => concept.terms);
+  // An efficacy claim needs an intervention study. A descriptive,
+  // cross-sectional, case-control, or unclassified design can be relevant
+  // context, but it is not a direct test of whether the exposure changes the
+  // outcome.
+  if (
+    (claim.claimType === "efficacy" || claim.claimType === "other") &&
+    ["other", "cross-sectional", "case-control", "case-report"].includes(design)
+  ) {
+    return "partial";
+  }
+
+  const intervention = claim.intervention ?? claim.concepts[0];
+  const outcomes = claim.outcomes?.length
+    ? claim.outcomes
+    : claim.concepts.slice(1);
+  const interventionTerms = intervention?.terms ?? [];
+
+  // A claim can name several outcomes. A paper that measures only the broad
+  // one ("performance") is not a direct test of the specific one ("chess
+  // performance"). Require every specific outcome concept to be present;
+  // generic outcome words alone are not enough to earn a direct grade.
+  const genericOutcomeKeys = new Set([
+    "performance",
+    "function",
+    "health",
+    "risk",
+    "outcome",
+    "outcomes",
+  ]);
+  const specificOutcomes = outcomes.filter(
+    (concept) => !genericOutcomeKeys.has(concept.key),
+  );
+  const requiredOutcomes =
+    specificOutcomes.length > 0 ? specificOutcomes : outcomes;
 
   const titleAndAbstract = `${article.title} ${article.abstract}`.toLowerCase();
   const allText = `${titleAndAbstract} ${evidenceText}`.toLowerCase();
@@ -600,12 +695,25 @@ function assessDirectness(
     return "partial";
   }
 
-  const interventionInTitle = containsAnyTerm(titleAndAbstract, interventionTerms);
-  const outcomeInTitle = containsAnyTerm(titleAndAbstract, outcomeTerms);
-  const interventionInText = containsAnyTerm(allText, interventionTerms);
-  const outcomeInText = containsAnyTerm(allText, outcomeTerms);
+  const interventionInTitle = containsAnyTerm(
+    article.title.toLowerCase(),
+    interventionTerms,
+  );
+  const interventionInFinding = containsAnyTerm(
+    evidenceText.toLowerCase(),
+    interventionTerms,
+  );
+  const outcomeInTitle =
+    requiredOutcomes.length > 0 &&
+    requiredOutcomes.every((concept) =>
+      containsAnyTerm(titleAndAbstract, concept.terms),
+    );
+  const interventionInText = interventionInTitle || interventionInFinding;
+  const outcomeInText =
+    requiredOutcomes.length > 0 &&
+    requiredOutcomes.every((concept) => containsAnyTerm(allText, concept.terms));
 
-  if (interventionInTitle && outcomeInTitle) {
+  if (interventionInText && outcomeInTitle) {
     return design === "review" ? "partial" : "direct";
   }
   if (interventionInText && outcomeInText) {
@@ -616,7 +724,9 @@ function assessDirectness(
     }
     return design === "review" ? "partial" : "direct";
   }
-  if (interventionInText || outcomeInText) return "partial";
+  // Matching only the exposure or only the outcome is not a proxy test of the
+  // claim's outcome. Keep those records indirect rather than inflating them to
+  // partial evidence.
   return "indirect";
 }
 
@@ -910,6 +1020,8 @@ function supportPatterns(claimType: ClaimType): RegExp[] {
       return [
         /\b(significant(?:ly)?|marked(?:ly)?|substantial(?:ly)?)\b[^.]{0,80}\b(improv|reduc|increase|decreas|lower|higher|better|greater)\w*/i,
         /\b(improved|reduced|increased|decreased|lowered|effective|beneficial|superior|greater improvement)\b/i,
+        /\b(positive|beneficial|favou?rable)\s+(?:effects?|results?|changes?|outcomes?)\b/i,
+        /\b(?:increase|improve|reduce|decrease|lower|raise|boost)s?\b/i,
         /\bassociated with\b[^.]{0,70}\b(lower|higher|better|greater|reduced|improved)\b/i,
         /\b(effect size|mean difference|odds ratio|hazard ratio)\b/i,
       ];
@@ -943,7 +1055,7 @@ function contradictPatterns(claimType: ClaimType): RegExp[] {
       ];
     case "efficacy":
       return [
-        /\bno (?:significant|statistically significant)?\s*(?:difference|effect|improvement|association|change|benefit)\b/i,
+        /\bno (?:significant|statistically significant)?\s*(?:difference|effect|improvement|association|change|benefit|increase|decrease|reduction)\b/i,
         /\b(did not|does not|failed to)\b[^.]{0,60}\b(improve|reduce|increase|decrease|affect|change|lower)\b/i,
         /\bnot (?:significantly )?(?:effective|associated|different|superior)\b/i,
         /\b(no evidence (?:of|that)|little evidence|insufficient evidence)\b/i,
@@ -967,6 +1079,15 @@ function contradictPatterns(claimType: ClaimType): RegExp[] {
     case "mechanism":
       return [/\b(no mechanism|not mediated|unknown mechanism)\b/i];
     default:
-      return [/\b(no evidence|does not support|inconsistent|refutes?)\b/i];
+      return [
+        /\b(no evidence|does not support|inconsistent|refutes?)\b/i,
+        /\b(increased|elevated|higher|greater)\s+(?:risk|odds|hazard)\b/i,
+        /\brisk of\b[^.]{0,80}\b(micronutrient|nutrient|deficienc(?:y|ies)|cardiovascular|mortality|disease)\b/i,
+        /\b(micronutrient|nutrient)\s+(?:inadequacy|deficienc(?:y|ies))\b/i,
+        /\b(adverse|harmful)\s+(?:shifts?|changes?|alterations?|effects? on|impact on|outcomes?)\b[^.]{0,80}\b(health|lipid|metabolic|cardiovascular|gut|microbiome)\b/i,
+        /\bpoor\b[^.]{0,60}\b(long-term health|health outcomes?)\b/i,
+        /\b(high|elevated|raised)\s+LDL\b/i,
+        /\b(dyslipidemia|atherogenic)\b/i,
+      ];
   }
 }
