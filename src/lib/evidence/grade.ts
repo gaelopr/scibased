@@ -191,14 +191,27 @@ export function synthesizeResult(
   const directionPool = preferredDirection
     ? topPool.filter((study) => study.direction === preferredDirection)
     : topPool;
+  // Related-outcome evidence should lead with a paper that actually studies
+  // the intervention, not merely a paper that mentions it in passing.
+  const headlineRelevance = (study: Study): number => {
+    if (!coverage.redirect || !study.redirectedOutcome) return 0;
+    const terms = (claim.intervention ?? claim.concepts[0])?.terms ?? [];
+    const finding = study.finding.toLowerCase();
+    const title = study.title.toLowerCase();
+    if (terms.some((term) => finding.includes(term.toLowerCase()))) return 2;
+    if (terms.some((term) => title.includes(term.toLowerCase()))) return 1;
+    return 0;
+  };
+  const byHeadline = (a: Study, b: Study) =>
+    headlineRelevance(b) - headlineRelevance(a) || b.weight - a.weight;
   const topStudy =
     [...directionPool]
       .filter((study) => study.direction !== "unclear")
-      .sort((a, b) => b.weight - a.weight)[0] ??
+      .sort(byHeadline)[0] ??
     [...topPool]
       .filter((study) => study.direction !== "unclear")
-      .sort((a, b) => b.weight - a.weight)[0] ??
-    [...topPool].sort((a, b) => b.weight - a.weight)[0] ??
+      .sort(byHeadline)[0] ??
+    [...topPool].sort(byHeadline)[0] ??
     studies[0];
 
   const conclusion = buildConclusion(

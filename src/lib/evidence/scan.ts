@@ -46,6 +46,8 @@ interface RankedArticle {
   year: number;
   /** How clearly the extracted finding is about the redirected outcome. */
   relevance: number;
+  /** How clearly the extracted finding or title names the intervention. */
+  interventionRelevance: number;
   /** The result sentence used to judge whether the finding is on-topic. */
   finding: string;
 }
@@ -427,6 +429,20 @@ function relatedRelevance(study: Study, plan: OutcomeRedirectPlan): number {
   ).length;
 }
 
+/**
+ * A related-outcome study still has to be about the intervention. A review of
+ * Ayurveda that happens to mention yoga in its title is a weaker basis for a
+ * yoga claim than a study whose extracted finding is actually about yoga.
+ */
+function interventionRelevance(study: Study, claim: ParsedClaim): number {
+  const terms = (claim.intervention ?? claim.concepts[0])?.terms ?? [];
+  const finding = study.finding.toLowerCase();
+  const title = study.title.toLowerCase();
+  if (terms.some((term) => finding.includes(term.toLowerCase()))) return 2;
+  if (terms.some((term) => title.includes(term.toLowerCase()))) return 1;
+  return 0;
+}
+
 function rankArticles(
   articles: RawArticle[],
   claim: ParsedClaim,
@@ -450,6 +466,9 @@ function rankArticles(
           isRedirected && redirectPlan
             ? relatedRelevance(study, redirectPlan)
             : 0,
+        interventionRelevance: isRedirected
+          ? interventionRelevance(study, claim)
+          : 0,
         finding: study.finding,
       };
     })
@@ -457,6 +476,7 @@ function rankArticles(
       const directnessRank = (value: Directness) =>
         value === "direct" ? 0 : value === "partial" ? 1 : 2;
       return (
+        b.interventionRelevance - a.interventionRelevance ||
         b.relevance - a.relevance ||
         directnessRank(a.directness) - directnessRank(b.directness) ||
         b.weight - a.weight ||
